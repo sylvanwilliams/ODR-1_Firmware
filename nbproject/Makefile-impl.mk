@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=ODR-1_Firmware_1.1
+PROJECTNAME=ODR-1_Firmware
 
 # Active Configuration
 DEFAULTCONF=default
