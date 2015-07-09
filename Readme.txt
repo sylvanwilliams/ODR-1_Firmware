@@ -1,22 +1,10 @@
-This is a demo application connecting a SnadPIC Rev 1.03 board (DSPIC33EP512MU810 processor) to a 320x240 262K color Tianma TM022HDH26 V1.0 LCD with an integrated ILITEK ILI9341 LCD Driver.
+This code is utilized within the ODR-1 (Open Design Radio - 1) which is a stand-alone "Firmware" defined QRP transceiver.The design goal for the radio is to cover from 1.8MHz (160 meters) up to 50 MHz (6 meters) though it may be able to cover up to 70MHz (4 meters). The radio uses a common quadrature switching mixer for both transmit and receive. The main chip sets used in the radio are:
 
-The DSPic demo board was purchased on Ebay from seller eleckropic with the following board description:
-PIC32 PIC24 dsPIC33 EASY USB OTG Development Board Starter kit TQFP100 SD Card
+Main Processor        - Microchip DSPIC33EP512MU810-1
+LCD Display           - Tianma TM022HDH26 with integrated ILI9341 controller 240x320 color
+Ethernet Controller   - Microchip ENC28J60-I/SS
+Audio Codec           - Texas Instruments TLV320AIC3204
+VFO (Clock Generator) - Silicon Labs Si5351A
 
-The LCD board was purchased on Ebay from seller egochina8848 with the following board description:
-"2.2" Serial SPI TFT Color LCD Module Display 240X320 w/ PCB Adpater / SD Socket"
-
-The LCD pins were attached as follows:
-MISO -  Unused, not connected
-LED -   Tied through a 10 Ohm resistor to +3.3V to operate the back-light.
-SCK -   To demo board RG6
-MOSI -  To demo board RG8
-D/C -   To demo board RG13
-RESET - To demo board RG1
-CS -    To demo board RG14
-GND -   To demo board GND
-VCC -   To demo board +3.3V
-
-The code was compiled on MPLAB X IDE v2.00
-
-Programming was done via PICkit-3
+The first build phase will consist of the Processor Board, Oscillator and mixer Board and the
+Display Board. This will constitute a 10mW transceiver. The final board will contain the main post amplifier and low pass filters generating ~5W of output power.
