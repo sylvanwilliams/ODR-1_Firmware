@@ -1,11 +1,16 @@
-// 
-// Author: Hans Summers, 2015
-// Website: http://www.hanssummers.com
-//
-// A very very simple Si5351a demonstration
-// using the Si5351a module kit http://www.hanssummers.com/synth
-// Please also refer to SiLabs AN619 which describes all the registers to use
-//
+/******************************************************************************
+   Author: Hans Summers, 2015
+   Website: http://www.hanssummers.com\
+
+   A very very simple Si5351a demonstration
+   using the Si5351a module kit http://www.hanssummers.com/synth
+   Please also refer to SiLabs AN619 which describes all the registers to use
+
+   5-26-2015 N7IFC
+   Modify to use DSPic I2C2 Write routine and to output complimentry
+   output signals. Change crystal frequency to 25MHz in header file.
+ *****************************************************************************/
+
 #include <stdint.h>
 //#include "i2c.h"
 #include "si5351a.h"
