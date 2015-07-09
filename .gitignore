@@ -9,3 +9,15 @@ nbproject/Makefile-genesis.properties
 nbproject/Makefile-local-default.mk
 
 nbproject/private/private.xml
+
+nbproject/configurations.xml
+
+nbproject/Makefile-default.mk
+
+nbproject/Makefile-impl.mk
+
+nbproject/Makefile-variables.mk
+
+nbproject/Package-default.bash
+
+nbproject/project.xml
