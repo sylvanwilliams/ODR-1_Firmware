@@ -9,6 +9,7 @@
    5-26-2015 N7IFC
    Modify to use DSPic I2C2 Write routine and to output complimentry
    output signals. Change crystal frequency to 25MHz in header file.
+
  *****************************************************************************/
 
 #include <stdint.h>
