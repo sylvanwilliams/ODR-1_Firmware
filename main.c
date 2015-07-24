@@ -16,6 +16,7 @@
 #include "p33EP512MU810.h"
 #include "DSPIC33E_hardware.h"
 #include "main.h"
+#include "devconfig.h"
 #include "LCD_driver.h"
 #include "LCD_fonts.h"
 #include "UI_main.h"
@@ -24,16 +25,6 @@
 #include "UI_page2.h"
 #include "si5351a.h"
 
-// Configuration words (fuses)
-_FOSCSEL( FNOSC_FRC         // Select Internal Fast RC at POR
-        & IESO_OFF);        // Internal External Start Option, Dont start internal
-_FOSC   ( FCKSM_CSECMD      // Clock Switching enabled,Fail Safe Clock Monitor disabled
-        & OSCIOFNC_OFF      // OSC2 Pin I/O Function is Clock Output
-        & POSCMD_XT);       // Primary Oscillator Mode: XT Crystal
-_FWDT   ( FWDTEN_OFF);      // Firmware Watch Dog Timer Disabled
-
-_FPOR   ( ALTI2C1_OFF       // Do not use alternate pins for I2C1 (ASDA1/ASCK1)
-        & ALTI2C2_OFF);     // Do not use alternate pins for I2C2 (ASDA2/ASCK2)
 
 int main(void)
 {
