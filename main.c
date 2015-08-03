@@ -25,6 +25,8 @@
 #include "UI_page2.h"
 #include "si5351a.h"
 
+void Service_Interface(void);
+
 
 int main(void)
 {
@@ -48,35 +50,81 @@ int main(void)
     Color_pallet_update();  // Set up the color pallet
     Refresh_page0();        // Refresh main screen
 
+    //Configure Timer1 for interrupt operation
+    Init_Timer1();
 
     while(1)  // main, loop forever
     {
-        Encoder1_Update();             // Get the latest encoder status
-        Encoder2_Update();             // Get the latest encoder status
-
-        //I2C2_Byte_Write	( 170, 170 );  // Test the I2C write function
-
-        if (current_page == 0)
-        {
-            Page0_pointer1_update();       // Update upper main screen data
-            Page0_pointer2_update();       // Update lower main screen data
-            Display_UTC_24HR();            // Update time display
-        }
-        else if (current_page == 1)
-        {
-            Page1_pointer1_update();       // Update upper main screen data
-        }
-        else if (current_page == 2)
-        {
-            Page2_pointer1_update();       // Update screen data
-            if (!(page_pointer1 & 0x8000)) // Check for item focus
-            {
-                Page2_pointer2_update();       // Focus on item data
-            }
-        }
-        delayms(2);                    // delay to slow the loop down for testing
+        
     }
 
 }
 /******************************************************************************/
+
+/******************************************************************************
+ * Function:       void __attribute__((interrupt,no_auto_psv)) _T1Interrupt( void )
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       ISR ROUTINE FOR THE TIMER1 INTERRUPT
+ *****************************************************************************/
+void __attribute__ ( (interrupt, no_auto_psv) ) _T1Interrupt( void )
+{
+    IFS0bits.T1IF = 0;
+    T1CONbits.TON = 0;
+ 
+    Service_Interface();
+
+    TMR1 = 0;
+    T1CONbits.TON = 1;
+
+    /* reset Timer 1 interrupt flag */
+}
+
+/******************************************************************************
+ * Function:       void Service_Interface(void)
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Main UI thread to scan encoders, button presses, etc
+ *****************************************************************************/
+void Service_Interface(void)
+{
+    Encoder1_Update(); // Get the latest encoder status
+    Encoder2_Update(); // Get the latest encoder status
+
+    //I2C2_Byte_Write	( 170, 170 );  // Test the I2C write function
+
+    if (current_page == 0)
+    {
+        Page0_pointer1_update(); // Update upper main screen data
+        Page0_pointer2_update(); // Update lower main screen data
+        Display_UTC_24HR(); // Update time display
+    }
+    else if (current_page == 1)
+    {
+        Page1_pointer1_update(); // Update upper main screen data
+    }
+    else if (current_page == 2)
+    {
+        Page2_pointer1_update(); // Update screen data
+        if (!(page_pointer1 & 0x8000)) // Check for item focus
+        {
+            Page2_pointer2_update(); // Focus on item data
+        }
+    }
+
+}
 

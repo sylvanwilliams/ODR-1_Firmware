@@ -28,6 +28,10 @@
 #include "UI_page0.h"
 #include "UI_page1.h"
 #include "UI_page2.h"
+#include "DSPIC33E_hardware.h"
+
+#define MENU_PRESS_DURATION 2
+#define BUTTON_TICKS        ((unsigned int)(MENU_PRESS_DURATION/CYCLE_TIME)/2 | 0x8000)
 
 //Arrays
 
@@ -80,7 +84,7 @@ void Encoder1_Update()
         else if (encoder1_PBcount)      // If button released and count is non-zero
         {
             encoder1_PBcount |= 0x8000; // Set MSB indicating button released and non-zero count trapped
-            if (encoder1_PBcount > 0x81FF)  // If button was held for 2 seconds
+            if (encoder1_PBcount > BUTTON_TICKS)  // If button was held for 2 seconds
             {
                 if (current_page == 0)  // If we are on page 0
                 {
@@ -131,7 +135,7 @@ void Encoder2_Update()
         else if (encoder2_PBcount)      // If button released and count is non-zero
         {
             encoder2_PBcount |= 0x8000; //Set MSB indicating button released and non-zero count trapped
-            if (encoder2_PBcount > 0x81FF)  // If button was held for 2 seconds
+            if (encoder2_PBcount > BUTTON_TICKS)  // If button was held for 2 seconds
             {
                 if (current_page == 0)  // If we are on page 0
                 {

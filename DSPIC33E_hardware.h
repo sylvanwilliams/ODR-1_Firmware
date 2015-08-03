@@ -17,11 +17,19 @@
 #ifndef __DSPIC33E_HARDWARE_H
 #define __DSPIC33E_HARDWARE_H
 
+// Compile for SNAPPIC evaluation board
+#ifndef SNAP_PIC
+#define SNAP_PIC
+#endif
+
 
 // all sort of CPU clock dependent constants
 // define FCY, system cycle rate, in the 33F chip Fosc / 2
 // #define FCY 29491200UL	// 29,4912 MHz
 // #define FCY 38707200UL	// 38,7072 MHz
+
+#define CYCLE_TIME 12e-3
+#define TIMER_PERIOD (CYCLE_TIME/(16.66667e-9 * 64))
 
 
 // define general I/O signals
@@ -72,4 +80,5 @@ void Init_I2C2(void);                                   // Init I2C system
 void I2C2_Byte_Write(unsigned char, unsigned char);     // write byte, (address, data)
 //unsigned char I2C2_Byte_Read(unsigned char);		// read (address)
 void I2C2_Byte_Read(unsigned char);		// read (address)
+void Init_Timer1(void);
 #endif

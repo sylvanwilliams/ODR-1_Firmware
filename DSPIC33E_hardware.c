@@ -159,10 +159,16 @@ void Init_SPI2()
 void Init_P33EP512MU810_osc()
 {
 // Configure Oscillator to operate the device at 120Mhz
+#ifdef SNAP_PIC
 // Fosc= Fin*M/(N1*N2), Fcy=Fosc/2
 // Fosc= 8M*60/(2*2)=120Mhz for 8M input clock PLLFBD=58
    PLLFBD             = 58;         // PLL Feedback Divisor bits (M = PLLFBD + 2)
-
+#else
+   // Fosc= Fin*M/(N1*N2), Fcy=Fosc/2
+   // Fosc= 12M*40/(2*2)=120Mhz for 8M input clock PLLFBD=58
+   PLLFBD             = 38;         // PLL Feedback Divisor bits (M = PLLFBD + 2)
+#endif
+   
    CLKDIVbits.ROI     = 0;          // Recover on Interrupt, no effect on DOZEN
    CLKDIVbits.DOZE    = 0b000;      // Fcy divided by 1
    CLKDIVbits.DOZEN   = 0;          // DOZE disabled, peripheral clock ratio forced to 1:1
@@ -382,4 +388,32 @@ void Init_RTCC()
     RCFGCALbits.RTCEN = 1;    // Enable the RTC
     RCFGCALbits.RTCWREN = 0;  // Stop future writes to the RTC control register
 
+}
+
+/******************************************************************************
+ * Function:       void Init_Timer1( void )
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Initialize Timer1 for Period Interrupts
+ *                 At 120MHz, Fcy = 60MHz or 16.666nS
+ *                 With prescaler set to /64 one timer tick = 1.066uS
+ *                 Configure for 12mS cycle --> PR1 = 11250
+ *****************************************************************************/
+void Init_Timer1( void )
+{
+    T1CON = 0;          // Timer reset
+    T1CONbits.TCKPS = 2;// Set prescaler to /64
+    IFS0bits.T1IF = 0;  // Reset Timer1 interrupt flag
+    IPC0bits.T1IP = 6;  // Timer1 Interrupt priority level=4
+    IEC0bits.T1IE = 1;  // Enable Timer1 interrupt
+    TMR1 = 0x0000;
+    PR1 = TIMER_PERIOD;       // Timer1 period register = 11250d
+    T1CONbits.TON = 1;  // Enable Timer1 and start the counter
 }

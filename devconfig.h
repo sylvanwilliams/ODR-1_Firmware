@@ -12,14 +12,13 @@
 extern "C" {
 #endif
     
-// Compile for SNAPPIC evaluation board
-#define SNAP_PIC
 
 // DSPIC33EP512MU810 Configuration Bit Settings
 
 // 'C' source line config statements
 
 #include <xc.h>
+#include "DSPIC33E_hardware.h"
 
 // FGS
 #pragma config GWRP = OFF               // General Segment Write-Protect bit (General Segment may be written)
