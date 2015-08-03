@@ -125,7 +125,7 @@ void I2C2_Byte_Read ( unsigned char Read_Address )
 
 
 /*******************************************************************************
-* Initialize SPI #2
+* Initialize SPI #2 Used for the LCD Display
 * 
 * 
 *******************************************************************************/
@@ -213,25 +213,25 @@ void Init_P33EP512MU810_osc()
 void Init_P33EP512MU810_pins()
 {
     // Set general I/O
-    TRISA = 0x00C0;    // PortA 0000 0000 1100 0000
+    TRISA = 0x0001;    // PortA 0000 0000 0000 0001 (In=RA0)
     PORTA = 0x0000;
 
     TRISB = 0x0000;    // PortB 0000 0000 0000 0000
     PORTB = 0x0000;
 
-    TRISC = 0x0000;    // PortC 0000 0000 0000 0000
+    TRISC = 0x001E;    // PortC 0000 0000 0001 1110 (In=RC1-RC4)
     PORTC = 0x0000;
 
-    TRISD = 0x3030;    // PortD 0011 0000 0011 0000
+    TRISD = 0x0000;    // PortD 0000 0000 0000 0000
     PORTD = 0x0000;
 
-    TRISE = 0x0002;    // PortE 0000 0000 0000 0010
+    TRISE = 0x0000;    // PortE 0000 0000 0000 0000
     PORTE = 0x0000;
 
     TRISF = 0x0000;    // PortF 0000 0000 0000 0000
     PORTF = 0x0000;
 
-    TRISG = 0x9F5D;    // PortG 1001 1111 0101 1101 RG15=Button In, RG14=SS2 Out
+    TRISG = 0x8280;    // PortG 1000 0010 1000 0000 (In=RG15,RG7,RG9)
     PORTG = 0x0000;
 
     ANSELA = 0x0000;   //Configure analog inputs
@@ -260,21 +260,30 @@ void Init_P33EP512MU810_pins()
     // with the exception of the slave select line
     // RPOR14bits.RP120R = 8;		//SDO2 on RG8 pin 12
     // RPOR13bits.RP118R = 9;		//SCK2 on RG6 pin 10
-    RPOR15bits.RP126R = 10;     //LCD_CS on RG14(RP126)
+    // RPOR15bits.RP126R = 10;     //LCD_CS on RG14(RP126)
+    RPOR6bits.RP87R = 10;     //LCD_CS on RE7(RP87)
 
     // RPOR7bits.RP96R = 0b010000; // Map RP96 RF0 to output comparator 1
 
     // Quadrature Encoder Interface #1 pin connections
-    RPINR14bits.QEA1R  = 0b1000100;  // Connect QEI1 QEA1 input to RP68 RD4 (Table 11-2)
-    RPINR14bits.QEB1R  = 0b1000101;  // Connect QEI1 QEB1 input to RP69 RD5 (Table 11-2)
-    RPINR15bits.HOME1R = 0b1001100;  // Connect QEI1 HOME1 input to RPI76 RD12 (Table 11-2)
-    RPINR15bits.INDX1R = 0b1001101;  // Connect QEI1 INDEX1 input to RPI77 RD13 (Table 11-2
+    //RPINR14bits.QEA1R  = 0b1000100;  // Connect QEI1 QEA1 input to RP68 RD4 (Table 11-2)
+    //RPINR14bits.QEB1R  = 0b1000101;  // Connect QEI1 QEB1 input to RP69 RD5 (Table 11-2)
+    //RPINR15bits.HOME1R = 0b1001100;  // Connect QEI1 HOME1 input to RPI76 RD12 (Table 11-2)
+    //RPINR15bits.INDX1R = 0b1001101;  // Connect QEI1 INDEX1 input to RPI77 RD13 (Table 11-2
+    RPINR14bits.QEA1R  = 0b0110010;  // Connect QEI1 QEA1 input to RPI50 RC2 (Table 11-2)
+    RPINR14bits.QEB1R  = 0b0110100;  // Connect QEI1 QEB1 input to RPI52 RC4 (Table 11-2)
+    RPINR15bits.HOME1R = 0b0000000;  // Connect QEI1 HOME1 input to Vss (Table 11-2)
+    RPINR15bits.INDX1R = 0b0110011;  // Connect QEI1 INDEX1 input to RPI51 RC3 (Table 11-2
 
     // Quadrature Encoder Interface #2 pin connections
-    RPINR16bits.QEA2R  = 0b0010111;  // Connect QEI2 QEA2 input to RPI23 RA7 (Table 11-2)
-    RPINR16bits.QEB2R  = 0b0010110;  // Connect QEI2 QEB2 input to RPI22 RA6 (Table 11-2)
-    RPINR17bits.HOME2R = 0b1111100;  // Connect QEI2 HOME2 input to RPI124 RG12 (Table 11-2)
-    RPINR17bits.INDX2R = 0b1010001;  // Connect QEI2 INDEX2 input to RPI81 RE1 (Table 11-2
+    //RPINR16bits.QEA2R  = 0b0010111;  // Connect QEI2 QEA2 input to RPI23 RA7 (Table 11-2)
+    //RPINR16bits.QEB2R  = 0b0010110;  // Connect QEI2 QEB2 input to RPI22 RA6 (Table 11-2)
+    //RPINR17bits.HOME2R = 0b1111100;  // Connect QEI2 HOME2 input to RPI124 RG12 (Table 11-2)
+    //RPINR17bits.INDX2R = 0b1010001;  // Connect QEI2 INDEX2 input to RPI81 RE1 (Table 11-2)
+    RPINR16bits.QEA2R  = 0b0010000;  // Connect QEI2 QEA2 input to RPI16 RA0 (Table 11-2)
+    RPINR16bits.QEB2R  = 0b0110001;  // Connect QEI2 QEB2 input to RPI49 RC1 (Table 11-2)
+    RPINR17bits.HOME2R = 0b0000000;  // Connect QEI2 HOME2 input to Vss (Table 11-2)
+    RPINR17bits.INDX2R = 0b1111001;  // Connect QEI2 INDEX2 input to RPI121 RG9 (Table 11-2)
 }
 
 
@@ -352,12 +361,12 @@ void Init_PWM()
     PHASE2 = 100;                     // PWM2 phase shift
     PHASE3 = 200;                     // PWM3 phase shift
     // PDCn = (desired duty cycle * PTPER)
-    PDC1 = 15000;                     // Default screen brightness to 50% Duty Cycle
-    PDC2 = PDC3 = 15000;              // Set to 50% duty, currently not used
+    PDC3 = 15000;                     // Default screen brightness to 50% Duty Cycle
+    PDC1 = PDC2 = 15000;              // Set to 50% duty, currently not used
     DTR1 = DTR2 = DTR3 = 5;           // Set Dead Time Values
     ALTDTR1 = ALTDTR2 = ALTDTR3 = 5;  // Set Alternate Dead Time Values
-    IOCON1 = 0x5000;                  // PWM1L used for backlight complimentary mode
-    IOCON2 = IOCON3 = 0x0000;         // Disabled
+    IOCON3 = 0xA000;                  // PWM3H pin 3 used for LCD backlight output
+    IOCON1 = IOCON2 = 0x0000;         // PWM1 and PWM2 outputs Disabled
     //Set Primary Time Base, Edge-Aligned Mode and Independent Duty Cycles
     PWMCON1 = PWMCON2 = PWMCON3 = 0x0000;
     FCLCON1 = FCLCON2 = FCLCON3 = 0x0003; // Fault inputs disabled

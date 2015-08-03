@@ -292,7 +292,7 @@ void Update_Parameter_Value()
             {
                 value_01 = 5;                   // stop at min value
             }
-            PDC1 = (value_01* (PTPER / 100 ));  // Set new PWM duty cycle
+            PDC3 = (value_01* (PTPER / 100 ));  // Set new PWM duty cycle
         break;
         case 2:  // Default Radio Frequency
             switch(page_pointer2)

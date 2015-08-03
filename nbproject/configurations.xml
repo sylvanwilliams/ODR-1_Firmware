@@ -15,6 +15,7 @@
       <itemPath>UI_page1.h</itemPath>
       <itemPath>UI_page2.h</itemPath>
       <itemPath>si5351a.h</itemPath>
+      <itemPath>devconfig.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
