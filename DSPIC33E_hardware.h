@@ -34,8 +34,18 @@
 
 // define general I/O signals
 // Use LAT for write only operations and PORT for read operations
-#define	LCD_CS     LATEbits.LATE7    //LCD Slave Select on RE7(RP87)
-#define	LCD_REST   LATEbits.LATE6    //LCD Reset on RE6(RPI86)
+#define	LCD_CS     LATEbits.LATE7     // LCD Slave Select on RE7(RP87)
+#define	LCD_REST   LATEbits.LATE6     // LCD Reset on RE6(RPI86)
+#define BPF_S0     LATDbits.LATD14    // Band Pass Filter Select 0
+#define BPF_S1     LATBbits.LATB15    // Band Pass Filter Select 1
+#define BPF_CS0    LATBbits.LATB14    // Band Pass Filter Chip Select 0
+#define BPF_CS1    LATDbits.LATD15    // Band Pass Filter Chip Select 1
+#define ATT_S0     LATBbits.LATB13    // RF Attenuator Select 0
+#define ATT_S1     LATBbits.LATB12    // RF Attenuator Select 1
+#define TX_RX      LATDbits.LATD0     // TX/RX Control line
+#define EN_12V     LATDbits.LATD9     // 12V Power Enable
+#define AUX_OUT    LATAbits.LATA3     // Rear Auxiliary Output
+#define PTT_OUT    LATAbits.LATA2     // Rear PTT Output
 
 // Configure LCD Data / Command Pin
 #ifdef SNAP_PIC  // Configure for development board

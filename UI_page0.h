@@ -49,5 +49,5 @@ void Display_FilterBW();     // Display BW Filter
 void Display_RFGain();       // Display RF Gain
 void Display_AFGain();       // Display AFGain
 void Display_UTC_24HR();     // Display Time in 24hour format
-
+void Change_Freq();          // Change osc and filters based on freq change
 #endif
