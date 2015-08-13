@@ -18,9 +18,9 @@
 #define __DSPIC33E_HARDWARE_H
 
 // Compile for SNAPPIC evaluation board
-#ifndef SNAP_PIC
-#define SNAP_PIC
-#endif
+//#ifndef SNAP_PIC
+//#define SNAP_PIC
+//#endif
 
 
 // all sort of CPU clock dependent constants
@@ -34,9 +34,16 @@
 
 // define general I/O signals
 // Use LAT for write only operations and PORT for read operations
-#define	LCD_CS     LATEbits.LATE7    //LCD Slave Select on RE5(RP85)
+#define	LCD_CS     LATEbits.LATE7    //LCD Slave Select on RE7(RP87)
 #define	LCD_REST   LATEbits.LATE6    //LCD Reset on RE6(RPI86)
-#define	LCD_DC     LATEbits.LATE4    //LCD Data/Command on RE4(RP84) temporary
+
+// Configure LCD Data / Command Pin
+#ifdef SNAP_PIC  // Configure for development board
+    #define	LCD_DC     LATEbits.LATE4    //LCD Data/Command on RE4(RP84) temporary
+#else  // Configure for ODR-1 Hardware
+    #define	LCD_DC     LATGbits.LATG15    //LCD Data/Command on RG15(RP127)
+#endif
+
 //#define	Debug_0    LATDbits.LATD0     //Debug_0 on RD0(RP64)
 //#define	Button_1  PORTGbits.RG15      //Push Button on RG15
 //#define	Button_2  PORTBbits.RB2       //Push Button on RB2

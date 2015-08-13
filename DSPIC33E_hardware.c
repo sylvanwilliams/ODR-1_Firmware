@@ -231,8 +231,14 @@ void Init_P33EP512MU810_pins()
     TRISF = 0x0000;    // PortF 0000 0000 0000 0000
     PORTF = 0x0000;
 
+    // Configure LCD Data / Command/data Pin
+#ifdef SNAP_PIC  // Configure for development board
     TRISG = 0x8280;    // PortG 1000 0010 1000 0000 (In=RG15,RG7,RG9)
     PORTG = 0x0000;
+#else  // Configure for ODR-1 Hardware
+    TRISG = 0x0280;    // PortG 0000 0010 1000 0000 (In=RG7,RG9)
+    PORTG = 0x0000;
+#endif
 
     ANSELA = 0x0000;   //Configure analog inputs
     ANSELB = 0x0000;
