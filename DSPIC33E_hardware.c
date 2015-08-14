@@ -267,13 +267,13 @@ void Init_P33EP512MU810_pins()
     TRISC = 0x001E;    // PortC 0000 0000 0001 1110 (In=RC1-RC4)
     PORTC = 0x0000;
 
-    TRISD = 0x0000;    // PortD 0000 0000 0000 0000
+    TRISD = 0x1010;    // PortD 0001 0000 0001 0000 (In RD4,RD12)
     PORTD = 0x0000;
 
     TRISE = 0x0000;    // PortE 0000 0000 0000 0000
     PORTE = 0x0000;
 
-    TRISF = 0x0000;    // PortF 0000 0000 0000 0000
+    TRISF = 0x0001;    // PortF 0000 0000 0000 0001 (In RF0)
     PORTF = 0x0000;
 
     // Configure LCD Data / Command/data Pin
@@ -302,7 +302,8 @@ void Init_P33EP512MU810_pins()
     CNPDD = 0x0000;    // Port D Pull Down
     CNPUE = 0x0000;    // Port E Pull Up 0000 0000 0000 0010
     CNPDE = 0x0000;    // Port E Pull Down
-    CNPUF = 0x0018;    // Port F Pull Up 0000 0000 0001 1000 Pull up I2C2 SCL SDA for testing
+    // CNPUF = 0x0018;    // Port F Pull Up 0000 0000 0001 1000 Pull up I2C2 SCL SDA for testing
+    CNPUF = 0x0000;    // Port F Pull Up 0000 0000 0000 0000
     CNPDF = 0x0000;    // Port F Pull Down
     CNPUG = 0x0000;    // Port G Pull Up 0000 0000 0000 0000
     CNPDG = 0x0000;    // Port G Pull Down

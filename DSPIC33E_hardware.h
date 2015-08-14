@@ -60,11 +60,11 @@
 //#define	Button_1  PORTGbits.RG15      //Push Button on RG15
 //#define	Button_2  PORTBbits.RB2       //Push Button on RB2
 
-// SPI1CON1 Configuration
+// SPI1CON1 Configuration (Audio Codec)
 // 15-13    Not Used    = 000
 // 12       DISSCK      = 0
 // 11       DISSDO      = 0
-// 10       MODE16      = 0
+// 10       MODE16      = 1   Use 16 bit mode for Audio codec
 //  9       SMP         = 0
 //  8       CKE         = 1         Not used in framed mode
 //  7       SSEN        = 0
@@ -72,9 +72,9 @@
 //  5       MSTEN       = 1         Master Mode Enable
 //  4-2     SPRE        = 1 01      000=8 thru 111=1
 //  1-0     PPRE        = 10        00=64, 01=16, 10=4, 11=1
-#define	SPI1CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
+#define	SPI1CON1_INIT	0x0576  //clk at 60Mhz/12 = 5Mhz
 
-// SPI1CON2 Configuration
+// SPI1CON2 Configuration (Audio Codec)
 // 15       FRMEN       = 0         Frame Mode Enable
 // 14       SPIFSD      = 0
 // 13       FRMPOL      = 0
@@ -84,7 +84,7 @@
 #define	SPI1CON2_INIT	0x0000
 
 
-// SPI2CON1 Configuration
+// SPI2CON1 Configuration (LCD Display)
 // 15-13    Not Used    = 000
 // 12       DISSCK      = 0
 // 11       DISSDO      = 0
@@ -100,7 +100,7 @@
 //#define	SPI2CON1_INIT	0x0161  //works with spi at 475 khz
 #define	SPI2CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
 
-// SPI2CON2 Configuration
+// SPI2CON2 Configuration (LCD Display)
 // 15       FRMEN       = 0         Frame Mode Enable
 // 14       SPIFSD      = 0
 // 13       FRMPOL      = 0
@@ -110,7 +110,7 @@
 //#define	SPI2CON2_INIT	0x8001
 #define	SPI2CON2_INIT	0x0000
 
-// SPI3CON1 Configuration
+// SPI3CON1 Configuration (Ethernet)
 // 15-13    Not Used    = 000
 // 12       DISSCK      = 0
 // 11       DISSDO      = 0
@@ -124,7 +124,7 @@
 //  1-0     PPRE        = 10        00=64, 01=16, 10=4, 11=1
 #define	SPI3CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
 
-// SPI3CON2 Configuration
+// SPI3CON2 Configuration (Ethernet)
 // 15       FRMEN       = 0         Frame Mode Enable
 // 14       SPIFSD      = 0
 // 13       FRMPOL      = 0
@@ -133,7 +133,7 @@
 //  0       SPIBEN      = 0
 #define	SPI3CON2_INIT	0x0000
 
-// SPI4CON1 Configuration
+// SPI4CON1 Configuration (EEPROM)
 // 15-13    Not Used    = 000
 // 12       DISSCK      = 0
 // 11       DISSDO      = 0
@@ -147,7 +147,7 @@
 //  1-0     PPRE        = 10        00=64, 01=16, 10=4, 11=1
 #define	SPI4CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
 
-// SPI4CON2 Configuration
+// SPI4CON2 Configuration (EEPROM)
 // 15       FRMEN       = 0         Frame Mode Enable
 // 14       SPIFSD      = 0
 // 13       FRMPOL      = 0
