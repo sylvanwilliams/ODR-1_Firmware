@@ -123,6 +123,20 @@ void I2C2_Byte_Read ( unsigned char Read_Address )
 
 }
 
+/*******************************************************************************
+* Initialize SPI #1 Used for Audio Codec
+*
+*
+*******************************************************************************/
+void Init_SPI1()
+
+{
+    // setup the SPI1 peripheral
+    SPI1STAT = 0x0;                     // disable the SPI module (just in case)
+    SPI1CON1 = SPI1CON1_INIT;           // see header file for SPI1 configuration
+    SPI1CON2 = SPI1CON2_INIT;           // see header file for SPI1 configuration
+    SPI1STAT = 0x8000;                  // enable the SPI1 module
+}
 
 /*******************************************************************************
 * Initialize SPI #2 Used for the LCD Display
@@ -150,6 +164,37 @@ void Init_SPI2()
 //		SPI2CON1bits.DISSCK = 0;    // Enable SCK output
 
 }
+
+/*******************************************************************************
+* Initialize SPI #3 Used for Ethernet
+*
+*
+*******************************************************************************/
+void Init_SPI3()
+
+{
+    // setup the SPI3 peripheral
+    SPI3STAT = 0x0;                     // disable the SPI module (just in case)
+    SPI3CON1 = SPI3CON1_INIT;           // see header file for SPI3 configuration
+    SPI3CON2 = SPI3CON2_INIT;           // see header file for SPI3 configuration
+    SPI3STAT = 0x8000;                  // enable the SPI3 module
+}
+
+/*******************************************************************************
+* Initialize SPI #4 Used for EEPROM
+*
+*
+*******************************************************************************/
+void Init_SPI4()
+
+{
+    // setup the SPI4 peripheral
+    SPI4STAT = 0x0;                     // disable the SPI module (just in case)
+    SPI4CON1 = SPI4CON1_INIT;           // see header file for SPI4 configuration
+    SPI4CON2 = SPI4CON2_INIT;           // see header file for SPI4 configuration
+    SPI4STAT = 0x8000;                  // enable the SPI4 module
+}
+
 
 /*******************************************************************************
 * Initialize DSPIC33E Oscillator
@@ -261,15 +306,28 @@ void Init_P33EP512MU810_pins()
     CNPDF = 0x0000;    // Port F Pull Down
     CNPUG = 0x0000;    // Port G Pull Up 0000 0000 0000 0000
     CNPDG = 0x0000;    // Port G Pull Down
-    
-    // Note SPI2 pins are not re-mappable on dsPIC33EP512MU810
-    // with the exception of the slave select line
-    // RPOR14bits.RP120R = 8;		//SDO2 on RG8 pin 12
-    // RPOR13bits.RP118R = 9;		//SCK2 on RG6 pin 10
-    // RPOR15bits.RP126R = 10;     //LCD_CS on RG14(RP126)
-    RPOR6bits.RP87R = 10;     //LCD_CS on RE7(RP87)
 
-    // RPOR7bits.RP96R = 0b010000; // Map RP96 RF0 to output comparator 1
+    // Map SPI1 peripheral pins
+    RPINR20bits.SDI1R = 0b1100000;    //SPI1 MISO1 to RP96 Table 11-1, 11-2
+    RPOR7bits.RP97R   = 0b000101;     //SPI1 MOSI1 to RP97 Table 11-3
+    RPOR12bits.RP112R = 0b000110;     //SPI1 SCK1 to RP112 Table 11-3
+    RPOR13bits.RP113R = 0b000111;     //SPI1 SS1 to RP113 Table 11-3
+
+    // Map SPI2 SS pin, other pins not remapable on dsPIC33EP512MU810
+    RPOR6bits.RP87R   = 0b001010;     //LCD_CS to RE7(RP87) Table 11-3
+
+    // Map SPI3 peripheral pins
+    RPINR29bits.SDI3R = 0b1001100;    //SPI3 MISO3 to RPI76 Table 11-1, 11-2
+    RPOR1bits.RP67R   = 0b000101;     //SPI3 MOSI3 to RP67 Table 11-3
+    RPOR1bits.RP66R   = 0b000110;     //SPI3 SCK3 to RP66 Table 11-3
+    RPOR0bits.RP65R   = 0b000111;     //SPI3 SS3 to RP65 Table 11-3
+
+    // Map SPI4 peripheral pins
+    RPINR31bits.SDI4R = 0b1000100;    //SPI4 MISO4 to RP68 Table 11-1, 11-2
+    RPOR3bits.RP71R   = 0b000101;     //SPI4 MOSI4 to RP71 Table 11-3
+    RPOR3bits.RP70R   = 0b000110;     //SPI4 SCK4 to RP70 Table 11-3
+    RPOR2bits.RP69R   = 0b000111;     //SPI4 SS4 to RP69 Table 11-3
+
 
     // Quadrature Encoder Interface #1 pin connections
     //RPINR14bits.QEA1R  = 0b1000100;  // Connect QEI1 QEA1 input to RP68 RD4 (Table 11-2)

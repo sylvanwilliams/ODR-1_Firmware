@@ -124,7 +124,7 @@ void LCD_FrameAddr(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int 
 }
 
 /*******************************************************************************
-* Innitialize LCD Display
+* Initialize LCD Display
 *
 *
 *******************************************************************************/

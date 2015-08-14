@@ -46,6 +46,8 @@
 #define EN_12V     LATDbits.LATD9     // 12V Power Enable
 #define AUX_OUT    LATAbits.LATA3     // Rear Auxiliary Output
 #define PTT_OUT    LATAbits.LATA2     // Rear PTT Output
+#define CODEC_RST  LATEbits.LATE4     // Audio Codec Reset Line RE4
+
 
 // Configure LCD Data / Command Pin
 #ifdef SNAP_PIC  // Configure for development board
@@ -57,6 +59,30 @@
 //#define	Debug_0    LATDbits.LATD0     //Debug_0 on RD0(RP64)
 //#define	Button_1  PORTGbits.RG15      //Push Button on RG15
 //#define	Button_2  PORTBbits.RB2       //Push Button on RB2
+
+// SPI1CON1 Configuration
+// 15-13    Not Used    = 000
+// 12       DISSCK      = 0
+// 11       DISSDO      = 0
+// 10       MODE16      = 0
+//  9       SMP         = 0
+//  8       CKE         = 1         Not used in framed mode
+//  7       SSEN        = 0
+//  6       CKP         = 1
+//  5       MSTEN       = 1         Master Mode Enable
+//  4-2     SPRE        = 1 01      000=8 thru 111=1
+//  1-0     PPRE        = 10        00=64, 01=16, 10=4, 11=1
+#define	SPI1CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
+
+// SPI1CON2 Configuration
+// 15       FRMEN       = 0         Frame Mode Enable
+// 14       SPIFSD      = 0
+// 13       FRMPOL      = 0
+// 12-2     NOT USED    = 0 0000 0000 00
+//  1       FRMDLY      = 0
+//  0       SPIBEN      = 0
+#define	SPI1CON2_INIT	0x0000
+
 
 // SPI2CON1 Configuration
 // 15-13    Not Used    = 000
@@ -84,8 +110,58 @@
 //#define	SPI2CON2_INIT	0x8001
 #define	SPI2CON2_INIT	0x0000
 
+// SPI3CON1 Configuration
+// 15-13    Not Used    = 000
+// 12       DISSCK      = 0
+// 11       DISSDO      = 0
+// 10       MODE16      = 0
+//  9       SMP         = 0
+//  8       CKE         = 1         Not used in framed mode
+//  7       SSEN        = 0
+//  6       CKP         = 1
+//  5       MSTEN       = 1         Master Mode Enable
+//  4-2     SPRE        = 1 01      000=8 thru 111=1
+//  1-0     PPRE        = 10        00=64, 01=16, 10=4, 11=1
+#define	SPI3CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
+
+// SPI3CON2 Configuration
+// 15       FRMEN       = 0         Frame Mode Enable
+// 14       SPIFSD      = 0
+// 13       FRMPOL      = 0
+// 12-2     NOT USED    = 0 0000 0000 00
+//  1       FRMDLY      = 0
+//  0       SPIBEN      = 0
+#define	SPI3CON2_INIT	0x0000
+
+// SPI4CON1 Configuration
+// 15-13    Not Used    = 000
+// 12       DISSCK      = 0
+// 11       DISSDO      = 0
+// 10       MODE16      = 0
+//  9       SMP         = 0
+//  8       CKE         = 1         Not used in framed mode
+//  7       SSEN        = 0
+//  6       CKP         = 1
+//  5       MSTEN       = 1         Master Mode Enable
+//  4-2     SPRE        = 1 01      000=8 thru 111=1
+//  1-0     PPRE        = 10        00=64, 01=16, 10=4, 11=1
+#define	SPI4CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
+
+// SPI4CON2 Configuration
+// 15       FRMEN       = 0         Frame Mode Enable
+// 14       SPIFSD      = 0
+// 13       FRMPOL      = 0
+// 12-2     NOT USED    = 0 0000 0000 00
+//  1       FRMDLY      = 0
+//  0       SPIBEN      = 0
+#define	SPI4CON2_INIT	0x0000
+
+
 // Declare functions available
+void Init_SPI1(void);
 void Init_SPI2(void);
+void Init_SPI3(void);
+void Init_SPI4(void);
 void Init_P33EP512MU810_osc(void);
 void Init_P33EP512MU810_pins(void);
 void Init_QEI_1(void);

@@ -24,6 +24,7 @@
 #include "UI_page1.h"
 #include "UI_page2.h"
 #include "si5351a.h"
+#include "TLV320AIC3204.h"
 
 void Service_Interface(void);
 void Init_Mixer_Board();
@@ -36,7 +37,10 @@ int main(void)
     Init_P33EP512MU810_pins();
     Init_QEI_1();            // Initialize quadrature encoder interface #1
     Init_QEI_2();            // Initialize quadrature encoder interface #2
+    Init_SPI1();             // Initialize SPI 1
     Init_SPI2();             // Initialize SPI 2
+    Init_SPI3();             // Initialize SPI 3
+    Init_SPI4();             // Initialize SPI 4
     Init_PWM();              // Initialize PWM Module
     Init_RTCC();             // Initialize the real time clock
     Init_I2C2();             // Initialize I2C2
@@ -46,7 +50,7 @@ int main(void)
     Init_Mixer_Board();      // Initialize the Mixer board
     AUX_OUT = 0;             // Rear Auxiliary Output
     PTT_OUT = 0;             // Rear PTT Output
-
+    Init_Audio_Codec();      // Initialize the audio Codec
     // Display and fill main screen
     Color_pallet_update();  // Set up the color pallet
     Refresh_page0();        // Refresh main screen
