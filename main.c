@@ -50,10 +50,13 @@ int main(void)
     Init_Mixer_Board();      // Initialize the Mixer board
     AUX_OUT = 0;             // Rear Auxiliary Output
     PTT_OUT = 0;             // Rear PTT Output
-    Init_Audio_Codec();      // Initialize the audio Codec
+    // Init_Audio_Codec();      // Initialize the audio Codec
+
     // Display and fill main screen
     Color_pallet_update();  // Set up the color pallet
     Refresh_page0();        // Refresh main screen
+
+    Init_Audio_Codec();      // Initialize the audio Codec
 
     //Configure Timer1 for interrupt operation
     Init_Timer1();

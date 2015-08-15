@@ -47,7 +47,7 @@
 #define AUX_OUT    LATAbits.LATA3     // Rear Auxiliary Output
 #define PTT_OUT    LATAbits.LATA2     // Rear PTT Output
 #define CODEC_RST  LATEbits.LATE4     // Audio Codec Reset Line RE4
-
+#define CODEC_CS  LATGbits.LATG1     // Audio Codec Chip Select RG1
 
 // Configure LCD Data / Command Pin
 #ifdef SNAP_PIC  // Configure for development board
