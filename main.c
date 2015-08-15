@@ -48,9 +48,9 @@ int main(void)
     // Initialize other board hardware
     Lcd_Init();		     // tft initialization
     Init_Mixer_Board();      // Initialize the Mixer board
+
     AUX_OUT = 0;             // Rear Auxiliary Output
     PTT_OUT = 0;             // Rear PTT Output
-    // Init_Audio_Codec();      // Initialize the audio Codec
 
     // Display and fill main screen
     Color_pallet_update();  // Set up the color pallet
@@ -171,5 +171,6 @@ BPF_CS0 = 1;
 BPF_CS1 = 0;
 
 // Default osillator frequency to 6M (2 * 10MHz)
-si5351aSetFrequency(20000000); // set si5351 freq to 20MHz
+//si5351aSetFrequency(20000000); // set si5351 freq to 20MHz
+    Init_si5351a() ;      // Initialize si5351 clock chip
 }
