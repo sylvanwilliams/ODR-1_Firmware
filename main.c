@@ -35,16 +35,17 @@ int main(void)
     // Initialize processor and its peripherals
     Init_P33EP512MU810_osc();
     Init_P33EP512MU810_pins();
-    Init_QEI_1();            // Initialize quadrature encoder interface #1
-    Init_QEI_2();            // Initialize quadrature encoder interface #2
-    Init_SPI1();             // Initialize SPI 1
-    Init_SPI2();             // Initialize SPI 2
-    Init_SPI3();             // Initialize SPI 3
-    Init_SPI4();             // Initialize SPI 4
-    Init_PWM();              // Initialize PWM Module
-    Init_RTCC();             // Initialize the real time clock
-    Init_I2C2();             // Initialize I2C2
-	
+    Init_QEI_1();     // Initialize quadrature encoder interface #1
+    Init_QEI_2();     // Initialize quadrature encoder interface #2
+    Init_SPI1();      // Initialize SPI 1
+    Init_SPI2();      // Initialize SPI 2
+    Init_SPI3();      // Initialize SPI 3
+    Init_SPI4();      // Initialize SPI 4
+    Init_PWM();       // Initialize PWM Module
+    Init_RTCC();      // Initialize the real time clock
+    Init_I2C2();      // Initialize I2C2
+    Init_REFCLK();    // Initialize Reference Clock output used as codec MCLK
+
     // Initialize other board hardware
     Lcd_Init();		     // tft initialization
     Init_Mixer_Board();      // Initialize the Mixer board

@@ -168,10 +168,11 @@ void Init_QEI_1(void);
 void Init_QEI_2(void);
 void Init_PWM();
 void Init_RTCC();
+void Init_REFCLK(); // Used as MCLK for the codec
 
 void Init_I2C2(void);                                   // Init I2C system
 void I2C2_Byte_Write(unsigned char, unsigned char);     // write byte, (address, data)
 //unsigned char I2C2_Byte_Read(unsigned char);		// read (address)
-void I2C2_Byte_Read(unsigned char);		// read (address)
+void I2C2_Byte_Read(unsigned char);		        // read (address)
 void Init_Timer1(void);
 #endif

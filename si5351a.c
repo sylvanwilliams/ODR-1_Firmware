@@ -10,6 +10,8 @@
    Modify to use DSPic I2C2 Write routine and to output complimentry
    output signals. Change crystal frequency to 25MHz in header file.
 
+   8-16-2015 N7IFC
+  Create seperate init routine, minimize small pll frequency change glitches
  *****************************************************************************/
 
 #include <stdint.h>
@@ -155,7 +157,7 @@ void si5351aSetFrequency(uint32_t frequency)
 
 void Init_si5351a(void)
 {
-    si5351aSetFrequency(10000000); // Set frequency to 10 MHz
+    si5351aSetFrequency(20000000); // Set receive frequency to 10 MHz
     // set crystal load capacitance to 8pf
     I2C2_Byte_Write(SI_XTAL_LD_CAP, 0b10010010);
     // Turn OFF spread spectrum
@@ -168,4 +170,5 @@ void Init_si5351a(void)
     I2C2_Byte_Write(SI_CLK0_CONTROL, 0b01001100 | SI_CLK_SRC_PLL_A);
     // Turn on CLK2 and invert output
     I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011100 | SI_CLK_SRC_PLL_A);
+
 }

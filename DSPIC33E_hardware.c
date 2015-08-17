@@ -242,12 +242,27 @@ void Init_P33EP512MU810_osc()
    RCONbits.SWDTEN=0;               // Disable Watch Dog Timer if enabled in fuse bit
 
 // Clock switching to incorporate PLL
-   __builtin_write_OSCCONH(0x03);   // Clock Switch to Primary Osc with PLL (NOSC=0b011)
-   //__builtin_write_OSCCONL(0x01);   // Start clock switching
-   __builtin_write_OSCCONL(0x03);   // Start clock switching and turn on LP 32kHz oscillator
-   while (OSCCONbits.COSC!= 0b011); // Wait for Clock switch to occur
-   while (OSCCONbits.LOCK!= 1);     // Wait for PLL to lock
+   __builtin_write_OSCCONH(0x03);      // Clock Switch to Primary Osc with PLL (NOSC=0b011)
+   //__builtin_write_OSCCONL(0x01);    // Start clock switching
+   __builtin_write_OSCCONL(0x03);      // Start clock switching and turn on LP 32kHz oscillator
+   while (OSCCONbits.COSC!= 0b011);    // Wait for Clock switch to occur
+   while (OSCCONbits.LOCK!= 1);        // Wait for PLL to lock
 
+}
+
+/*******************************************************************************
+* Initialize Reference Clock output used for Codec M-Clock
+* Using 12MHz main oscillator clock passed straight through
+*
+*******************************************************************************/
+void Init_REFCLK()
+
+{
+    // Setup REFOCON Register
+    REFOCONbits.RODIV  = 0b0000;    // Reference Oscillator Divider bits
+    REFOCONbits.ROSEL  = 0b1;       // Reference Oscillator Source Select bit
+    REFOCONbits.ROSSLP = 0b0;       // Reference Oscillator Run in Sleep bit
+    REFOCONbits.ROON   = 0b1;       // Reference Oscillator Output Enable
 }
 
 /*******************************************************************************
@@ -258,7 +273,7 @@ void Init_P33EP512MU810_osc()
 void Init_P33EP512MU810_pins()
 {
     // Set general I/O
-    TRISA = 0x0001;    // PortA 0000 0000 0000 0001 (In=RA0)
+    TRISA = 0x0081;    // PortA 0000 0000 1000 0001 (In=RA0)
     PORTA = 0x0000;
 
     TRISB = 0x0000;    // PortB 0000 0000 0000 0000
@@ -270,7 +285,7 @@ void Init_P33EP512MU810_pins()
     TRISD = 0x1010;    // PortD 0001 0000 0001 0000 (In RD4,RD12)
     PORTD = 0x0000;
 
-    TRISE = 0x0000;    // PortE 0000 0000 0000 0000
+    TRISE = 0x0008;    // PortE 0000 0000 0000 1000 (In RE3, )
     PORTE = 0x0000;
 
     TRISF = 0x0001;    // PortF 0000 0000 0000 0001 (In RF0)
@@ -329,6 +344,13 @@ void Init_P33EP512MU810_pins()
     RPOR3bits.RP70R   = 0b000110;     //SPI4 SCK4 to RP70 Table 11-3
     RPOR2bits.RP69R   = 0b000111;     //SPI4 SS4 to RP69 Table 11-3
 
+    // Map Audio Codec clock, interrupt and DCI module pins
+    RPINR24bits.CSDIR = 0b0010111;    // DCI CSDI to RA7 RPI23 Table 11-1, 11-2
+    RPOR4bits.RP80R   = 0b001011;     // DCI CSDO to RE0 RP80 Table 11-3
+    RPOR15bits.RP126R = 0b001101;     // DCI COFS to RG14 RP126 Table 11-3
+    RPOR14bits.RP125R = 0b001100;     // DCI CSCK to RG13 RP125 Table 11-3
+    RPOR5bits.RP82R   = 0b110001;     // REFCLK to RE2 RP82 Table 11-3 used for MCLK
+    RPINR0bits.INT1R  = 0b1010011;    // EXT INT1 to RE3 RPI83 Table 11-1, 11-2
 
     // Quadrature Encoder Interface #1 pin connections
     //RPINR14bits.QEA1R  = 0b1000100;  // Connect QEI1 QEA1 input to RP68 RD4 (Table 11-2)
