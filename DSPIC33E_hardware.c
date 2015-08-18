@@ -135,10 +135,18 @@ void Init_SPI2()
 
     // setup the SPI2 peripheral
     SPI2STAT = 0x0;                     // disable the SPI module (just in case)
+    IFS2bits.SPI2IF = 0;                //Clear interrupt flag
+    SPI2STATbits.SISEL = 3;             //Select interrupt mode for SRRBF full
+    IEC2bits.SPI2IE = 0;                //Enable SPI2 interrupt
+    IPC8bits.SPI2IP = 2;                //Set priority one higher than main timer
+    
     SPI2CON1 = SPI2CON1_INIT;           // see header file for SPI2 configuration
     SPI2CON2 = SPI2CON2_INIT;           // see header file for SPI2 configuration
-    SPI2STAT = 0x8000;                  // enable the SPI2 module
-
+    
+    SPI2STATbits.SPIROV = 0;
+    SPI2CON2bits.SPIBEN = 1;
+    
+    SPI2STATbits.SPIEN = 1;
 // Another way to configure the SPI2CON1 register
 //		SPI2CON1bits.CKP=0;         // Idle state for clock is a low level
 //		SPI2CON1bits.CKE=1;         // Data out on Active to Idle Edge
@@ -284,6 +292,7 @@ void Init_P33EP512MU810_pins()
     RPINR16bits.QEB2R  = 0b0110001;  // Connect QEI2 QEB2 input to RPI49 RC1 (Table 11-2)
     RPINR17bits.HOME2R = 0b0000000;  // Connect QEI2 HOME2 input to Vss (Table 11-2)
     RPINR17bits.INDX2R = 0b1111001;  // Connect QEI2 INDEX2 input to RPI121 RG9 (Table 11-2)
+    
 }
 
 
@@ -312,7 +321,7 @@ void Init_QEI_1()
     QEI1IOCbits.IDXPOL  = 0;      // INDXx Input Polarity not inverted
     QEI1IOCbits.QEBPOL  = 0;      // QEBx Input Polarity not inverted
     QEI1IOCbits.QEAPOL  = 0;      // QEAx Input Polarity not inverted
-
+    
     QEI1CONbits.QEIEN   = 1;      // Module counters are enabled
 }
 
@@ -418,11 +427,11 @@ void Init_RTCC()
 void Init_Timer1( void )
 {
     T1CON = 0;          // Timer reset
-    T1CONbits.TCKPS = 2;// Set prescaler to /64
+    T1CONbits.TCKPS = TIMER_PRESCALER;// Set prescaler to /64
     IFS0bits.T1IF = 0;  // Reset Timer1 interrupt flag
-    IPC0bits.T1IP = 6;  // Timer1 Interrupt priority level=4
+    IPC0bits.T1IP = 1;  // Timer1 Interrupt priority level=1
     IEC0bits.T1IE = 1;  // Enable Timer1 interrupt
     TMR1 = 0x0000;
-    PR1 = TIMER_PERIOD;       // Timer1 period register = 11250d
+    PR1 = TIMER1_PERIOD;       // Timer1 period register - see macro
     T1CONbits.TON = 1;  // Enable Timer1 and start the counter
 }

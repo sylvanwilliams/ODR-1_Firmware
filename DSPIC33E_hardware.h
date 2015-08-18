@@ -28,8 +28,25 @@
 // #define FCY 29491200UL	// 29,4912 MHz
 // #define FCY 38707200UL	// 38,7072 MHz
 
-#define CYCLE_TIME 12e-3
-#define TIMER_PERIOD (CYCLE_TIME/(16.66667e-9 * 64))
+#define TIMER_PRESCALER_1       0
+#define TIMER_PRESCALER_8       1
+#define TIMER_PRESCALER_64      2
+#define TIMER_PRESCALER_256     3
+
+#define TIMER_PRESCALER TIMER_PRESCALER_64
+
+#if TIMER_PRESCALER == TIMER_PRESCALER_1
+#define TIMER_PRESCALER_VALUE 1
+#elif TIMER_PRESCALER == TIMER_PRESCALER_8
+#define TIMER_PRESCALER_VALUE 8
+#elif TIMER_PRESCALER == TIMER_PRESCALER_64
+#define TIMER_PRESCALER_VALUE 64
+#elif TIMER_PRESCALER == TIMER_PRESCALER_256
+#define TIMER_PRESCALER_VALUE 256
+#endif
+
+#define TIMER1_CYCLE_TIME 1e-3
+#define TIMER1_PERIOD ((TIMER1_CYCLE_TIME/(16.66667e-9 * TIMER_PRESCALER_VALUE)))
 
 
 // define general I/O signals
@@ -37,6 +54,7 @@
 #define	LCD_CS     LATEbits.LATE7    //LCD Slave Select on RE5(RP85)
 #define	LCD_REST   LATEbits.LATE6    //LCD Reset on RE6(RPI86)
 #define	LCD_DC     LATEbits.LATE4    //LCD Data/Command on RE4(RP84) temporary
+#define PERIODIC   LATDbits.LATD0
 //#define	Debug_0    LATDbits.LATD0     //Debug_0 on RD0(RP64)
 //#define	Button_1  PORTGbits.RG15      //Push Button on RG15
 //#define	Button_2  PORTBbits.RB2       //Push Button on RB2
@@ -56,6 +74,7 @@
 //#define	SPI2CON1_INIT	0x0061
 //#define	SPI2CON1_INIT	0x0161  //works with spi at 475 khz
 #define	SPI2CON1_INIT	0x0176  //clk at 60Mhz/12 = 5Mhz
+//#define	SPI2CON1_INIT	0x016B  //clk at 60Mhz/6 = 10Mhz
 
 // SPI2CON2 Configuration
 // 15       FRMEN       = 0         Frame Mode Enable
