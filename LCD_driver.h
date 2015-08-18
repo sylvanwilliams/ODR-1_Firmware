@@ -25,25 +25,29 @@
 #define	int64 signed long long int      // AKA int64_t
 #define	uint64 unsigned long long int   // AKA uint64_t
 
+//FIFO State
+#define UNLOCKED    0
+#define LOCKED      1
+
 //Define the size of the LCD	
-//#define LCD_W 240   // Portrate
-//#define LCD_H 320   // Portrate
+//#define LCD_W 240   // Portrait
+//#define LCD_H 320   // Portrait
 #define LCD_W 320   // Landscape
 #define LCD_H 240   // Landscape
+
+#define DATA 1
+#define COMMAND 0
 
 // variables available for external access
 extern  uint16 BACK_COLOR;      // Background color
 extern  uint16 POINT_COLOR;     // Pen color
-extern   uint8 num32_char[10];  // 32bit number to character array:
+extern  uint8 num32_char[10];  // 32bit number to character array:
 
 // Functions
 void delayms(int count);          // 1ms delay routine used during display init
 void Lcd_Init(void); 
 void LCD_Clear(uint16 Color);
-void LCD_FrameAddr(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2);
-void LCD_WR_DATA8(char da);
-void LCD_WR_DATA(int da);
-void LCD_WR_REG(char da);
+
 
 void LCD_DrawPoint(uint16 x,uint16 y);                                //Draw points
 void LCD_DrawPoint_big(uint16 x,uint16 y);                            //Draw a big point
