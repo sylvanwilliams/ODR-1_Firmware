@@ -89,44 +89,41 @@ void Init_Audio_Codec(void)
     Codec_Write_SPI (65, 0b00000000); // Left DAC Channel Digital Volume
     Codec_Write_SPI (63, 0b11010100); // DAC Channel Setup Register 1
 
-    Codec_Write_SPI (81, 0b00000010); // ADC Channel Setup, disable soft stepping
-
+    //Codec_Write_SPI (81, 0b00000010); // ADC Channel Setup, disable soft stepping
 
     Codec_Write_SPI (0, 1);           // Select page 1
     Codec_Write_SPI (1,  0b00001000); // Disable connection of AVDD with DVDD
     Codec_Write_SPI (2,  0b00000001); // AVDD LDO Powered up 1.72V
     Codec_Write_SPI (10, 0b00000000); // Common Mode Control CM 0.9V LDOIN 1.8-3.6V
+    Codec_Write_SPI (9,  0b00110011); // Output Driver Power Control HPL HPR MAL MAR on
+    delayms(1000);    // Delay for supply rail powerup
+
+    Codec_Write_SPI (52, 0b00010000); // Left MICPGA Pos Input Routing IN2L+ RX_I+
+    Codec_Write_SPI (54, 0b00010000); // Left MICPGA Neg Input Routing IN2R- RX_I-
+    Codec_Write_SPI (55, 0b01000000); // Right MICPGA Pos Input Routing IN1R+ RX_Q+
+    Codec_Write_SPI (57, 0b00010000); // Right MICPGA Neg Input Routing IN1L- RX_Q-
+    Codec_Write_SPI (58, 0b00001100); // Floating Input Configuration IN3L IN3R
+    Codec_Write_SPI (71, 0b00110010); // Analog Input Quick Charging 6.4ms
 
     Codec_Write_SPI (12, 0b00000010); // HPL Routing Selection MAL
     Codec_Write_SPI (13, 0b00000010); // HPR Routing Selection MAR
-    
+
     //Codec_Write_SPI (12, 0b00000100); // HPL Routing Selection IN1L
     //Codec_Write_SPI (13, 0b00000100); // HPR Routing Selection IN1R
-
-    Codec_Write_SPI (16, 0b00001111); // HPL Driver Gain Setting +15dB
-    Codec_Write_SPI (17, 0b00001111); // HPR Driver Gain Setting +15dB
-    Codec_Write_SPI (59, 0b10000000); // Left MICPGA Volume 6dB diff gain
-    Codec_Write_SPI (60, 0b10000000); // Right MICPGA Volume 6dB diff gain
-    Codec_Write_SPI (24, 0b00000000); // Mixer Amp Left Volume 0dB to -30dB
-    Codec_Write_SPI (25, 0b00000000); // Mixer Amp Right Volume 0dB to -30dB
-    Codec_Write_SPI (9,  0b00110011); // Output Driver Power Control HPL HPR MAL MAR on
-    Codec_Write_SPI (52, 0b00010000); // Left MICPGA Pos Input Routing IN2L+ RX_I+
-    Codec_Write_SPI (54, 0b11010000); // Left MICPGA Neg Input Routing IN2R- RX_I-
-    Codec_Write_SPI (55, 0b01000000); // Right MICPGA Pos Input Routing IN1R+ RX_Q+
-    Codec_Write_SPI (57, 0b11010000); // Right MICPGA Neg Input Routing IN1L- RX_Q-
-    Codec_Write_SPI (58, 0b00001100); // Floating Input Configuration IN3L IN3R
-    Codec_Write_SPI (71, 0b00110010); // Analog Input Quick Charging 6.4ms
 
     Codec_Write_SPI (59, 0b00001100); // Left MICPGA Volume 6dB to 53dB diff gain
     Codec_Write_SPI (60, 0b00001100); // Right MICPGA Volume 6dB to 53dB diff gain
 
-    Codec_Write_SPI (22, 0b00000000); // IN1L to HPL Volume 0dB to -72dB
-    Codec_Write_SPI (23, 0b00000000); // IN1R to HPR Volume 0dB to -72dB
+    Codec_Write_SPI (16, 0b00001111); // HPL Driver Gain Setting +15dB
+    Codec_Write_SPI (17, 0b00001111); // HPR Driver Gain Setting +15dB
+
+    Codec_Write_SPI (22, 0b01110101); // IN1L to HPL Volume 0dB to -72dB
+    Codec_Write_SPI (23, 0b01110101); // IN1R to HPR Volume 0dB to -72dB
     
     Codec_Write_SPI (24, 0b00000000); // Mixer Amp Left Volume 0dB to -30dB
     Codec_Write_SPI (25, 0b00000000); // Mixer Amp Right Volume 0dB to -30dB
 
-    //temp2 = Codec_Read_SPI(30); //Test read should come back with 0111 1111
+    //temp2 = Codec_Read_SPI(30); //Test read function
 
     //Debug screen printing
     //POINT_COLOR = char_norm_color;

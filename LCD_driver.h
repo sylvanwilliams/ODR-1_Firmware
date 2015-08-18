@@ -37,7 +37,7 @@ extern  uint16 POINT_COLOR;     // Pen color
 extern   uint8 num32_char[10];  // 32bit number to character array:
 
 // Functions
-void delayms(int count);          // 1ms delay routine used during display init
+void delayms(uint16 count);          // 1ms delay routine used during display init
 void Lcd_Init(void); 
 void LCD_Clear(uint16 Color);
 void LCD_FrameAddr(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2);

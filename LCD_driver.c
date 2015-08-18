@@ -29,7 +29,7 @@ uint8 num32_char[10] = {0,0,0,0,0,0,0,0,0,0}; // 32bit number to character array
 * Edit "count" based on processor speed for 1ms
 *
 *******************************************************************************/
-void delayms(int count)
+void delayms(uint16 count)
 {
     int i,j;
     for(i=0;i<count;i++)
