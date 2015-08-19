@@ -40,11 +40,12 @@ int main(void)
     Init_PWM();                // Initialize PWM Module
     Init_RTCC();                // Initialize the real time clock
     Init_I2C2();                // Initialize I2C2
-	
     // Initialize other board hardware
     Lcd_Init();		       // tft initialization
 
+#ifndef SNAP_PIC
     si5351aSetFrequency(3600000); // set the si5351 frequency in MHz
+#endif
   
     // Display and fill main screen
     Color_pallet_update();  // Set up the color pallet
@@ -54,13 +55,12 @@ int main(void)
     Init_Timer1();
 
     while(1)  // main, loop forever
-    {
-        
+    {   
+        Service_Interface();
     }
 
 }
 /******************************************************************************/
-
 /******************************************************************************
  * Function:       void __attribute__((interrupt,no_auto_psv)) _T1Interrupt( void )
  *
@@ -74,12 +74,14 @@ int main(void)
  *
  * Overview:       ISR ROUTINE FOR THE TIMER1 INTERRUPT
  *****************************************************************************/
-void __attribute__ ( (interrupt, no_auto_psv) ) _T1Interrupt( void )
+void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;
     T1CONbits.TON = 0;
- 
-    Service_Interface();
+
+    PERIODIC = ~PERIODIC;
+    Encoder1_Update(); // Get the latest encoder status
+    Encoder2_Update(); // Get the latest encoder status
 
     TMR1 = 0;
     T1CONbits.TON = 1;
@@ -102,11 +104,7 @@ void __attribute__ ( (interrupt, no_auto_psv) ) _T1Interrupt( void )
  *****************************************************************************/
 void Service_Interface(void)
 {
-    Encoder1_Update(); // Get the latest encoder status
-    Encoder2_Update(); // Get the latest encoder status
-
-    //I2C2_Byte_Write	( 170, 170 );  // Test the I2C write function
-
+    
     if (current_page == 0)
     {
         Page0_pointer1_update(); // Update upper main screen data
