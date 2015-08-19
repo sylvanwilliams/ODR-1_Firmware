@@ -123,6 +123,20 @@ void I2C2_Byte_Read ( unsigned char Read_Address )
 
 }
 
+/*******************************************************************************
+* Initialize SPI #1 Used for Audio Codec
+*
+*
+*******************************************************************************/
+void Init_SPI1()
+
+{
+    // setup the SPI1 peripheral
+    SPI1STAT = 0x0;                     // disable the SPI module (just in case)
+    SPI1CON1 = SPI1CON1_INIT;           // see header file for SPI1 configuration
+    SPI1CON2 = SPI1CON2_INIT;           // see header file for SPI1 configuration
+    SPI1STAT = 0x8000;                  // enable the SPI1 module
+}
 
 /*******************************************************************************
 * Initialize SPI #2 Used for the LCD Display
@@ -158,6 +172,37 @@ void Init_SPI2()
 //		SPI2CON1bits.DISSCK = 0;    // Enable SCK output
 
 }
+
+/*******************************************************************************
+* Initialize SPI #3 Used for Ethernet
+*
+*
+*******************************************************************************/
+void Init_SPI3()
+
+{
+    // setup the SPI3 peripheral
+    SPI3STAT = 0x0;                     // disable the SPI module (just in case)
+    SPI3CON1 = SPI3CON1_INIT;           // see header file for SPI3 configuration
+    SPI3CON2 = SPI3CON2_INIT;           // see header file for SPI3 configuration
+    SPI3STAT = 0x8000;                  // enable the SPI3 module
+}
+
+/*******************************************************************************
+* Initialize SPI #4 Used for EEPROM
+*
+*
+*******************************************************************************/
+void Init_SPI4()
+
+{
+    // setup the SPI4 peripheral
+    SPI4STAT = 0x0;                     // disable the SPI module (just in case)
+    SPI4CON1 = SPI4CON1_INIT;           // see header file for SPI4 configuration
+    SPI4CON2 = SPI4CON2_INIT;           // see header file for SPI4 configuration
+    SPI4STAT = 0x8000;                  // enable the SPI4 module
+}
+
 
 /*******************************************************************************
 * Initialize DSPIC33E Oscillator
@@ -205,12 +250,27 @@ void Init_P33EP512MU810_osc()
    RCONbits.SWDTEN=0;               // Disable Watch Dog Timer if enabled in fuse bit
 
 // Clock switching to incorporate PLL
-   __builtin_write_OSCCONH(0x03);   // Clock Switch to Primary Osc with PLL (NOSC=0b011)
-   //__builtin_write_OSCCONL(0x01);   // Start clock switching
-   __builtin_write_OSCCONL(0x03);   // Start clock switching and turn on LP 32kHz oscillator
-   while (OSCCONbits.COSC!= 0b011); // Wait for Clock switch to occur
-   while (OSCCONbits.LOCK!= 1);     // Wait for PLL to lock
+   __builtin_write_OSCCONH(0x03);      // Clock Switch to Primary Osc with PLL (NOSC=0b011)
+   //__builtin_write_OSCCONL(0x01);    // Start clock switching
+   __builtin_write_OSCCONL(0x03);      // Start clock switching and turn on LP 32kHz oscillator
+   while (OSCCONbits.COSC!= 0b011);    // Wait for Clock switch to occur
+   while (OSCCONbits.LOCK!= 1);        // Wait for PLL to lock
 
+}
+
+/*******************************************************************************
+* Initialize Reference Clock output used for Codec M-Clock
+* Using 12MHz main oscillator clock passed straight through
+*
+*******************************************************************************/
+void Init_REFCLK()
+
+{
+    // Setup REFOCON Register
+    REFOCONbits.RODIV  = 0b0000;    // Reference Oscillator Divider bits
+    REFOCONbits.ROSEL  = 0b1;       // Reference Oscillator Source Select bit
+    REFOCONbits.ROSSLP = 0b0;       // Reference Oscillator Run in Sleep bit
+    REFOCONbits.ROON   = 0b1;       // Reference Oscillator Output Enable
 }
 
 /*******************************************************************************
@@ -221,7 +281,7 @@ void Init_P33EP512MU810_osc()
 void Init_P33EP512MU810_pins()
 {
     // Set general I/O
-    TRISA = 0x0001;    // PortA 0000 0000 0000 0001 (In=RA0)
+    TRISA = 0x0081;    // PortA 0000 0000 1000 0001 (In=RA0)
     PORTA = 0x0000;
 
     TRISB = 0x0000;    // PortB 0000 0000 0000 0000
@@ -230,17 +290,23 @@ void Init_P33EP512MU810_pins()
     TRISC = 0x001E;    // PortC 0000 0000 0001 1110 (In=RC1-RC4)
     PORTC = 0x0000;
 
-    TRISD = 0x0000;    // PortD 0000 0000 0000 0000
+    TRISD = 0x1010;    // PortD 0001 0000 0001 0000 (In RD4,RD12)
     PORTD = 0x0000;
 
-    TRISE = 0x0000;    // PortE 0000 0000 0000 0000
+    TRISE = 0x0008;    // PortE 0000 0000 0000 1000 (In RE3, )
     PORTE = 0x0000;
 
-    TRISF = 0x0000;    // PortF 0000 0000 0000 0000
+    TRISF = 0x0001;    // PortF 0000 0000 0000 0001 (In RF0)
     PORTF = 0x0000;
 
+    // Configure LCD Data / Command/data Pin
+#ifdef SNAP_PIC  // Configure for development board
     TRISG = 0x8280;    // PortG 1000 0010 1000 0000 (In=RG15,RG7,RG9)
     PORTG = 0x0000;
+#else  // Configure for ODR-1 Hardware
+    TRISG = 0x0280;    // PortG 0000 0010 1000 0000 (In=RG7,RG9)
+    PORTG = 0x0000;
+#endif
 
     ANSELA = 0x0000;   //Configure analog inputs
     ANSELB = 0x0000;
@@ -259,19 +325,40 @@ void Init_P33EP512MU810_pins()
     CNPDD = 0x0000;    // Port D Pull Down
     CNPUE = 0x0000;    // Port E Pull Up 0000 0000 0000 0010
     CNPDE = 0x0000;    // Port E Pull Down
-    CNPUF = 0x0018;    // Port F Pull Up 0000 0000 0001 1000 Pull up I2C2 SCL SDA for testing
+    // CNPUF = 0x0018;    // Port F Pull Up 0000 0000 0001 1000 Pull up I2C2 SCL SDA for testing
+    CNPUF = 0x0000;    // Port F Pull Up 0000 0000 0000 0000
     CNPDF = 0x0000;    // Port F Pull Down
     CNPUG = 0x0000;    // Port G Pull Up 0000 0000 0000 0000
     CNPDG = 0x0000;    // Port G Pull Down
-    
-    // Note SPI2 pins are not re-mappable on dsPIC33EP512MU810
-    // with the exception of the slave select line
-    // RPOR14bits.RP120R = 8;		//SDO2 on RG8 pin 12
-    // RPOR13bits.RP118R = 9;		//SCK2 on RG6 pin 10
-    // RPOR15bits.RP126R = 10;     //LCD_CS on RG14(RP126)
-    RPOR6bits.RP87R = 10;     //LCD_CS on RE7(RP87)
 
-    // RPOR7bits.RP96R = 0b010000; // Map RP96 RF0 to output comparator 1
+    // Map SPI1 peripheral pins
+    RPINR20bits.SDI1R = 0b1100000;    //SPI1 MISO1 to RP96 Table 11-1, 11-2
+    RPOR7bits.RP97R   = 0b000101;     //SPI1 MOSI1 to RP97 Table 11-3
+    RPOR12bits.RP112R = 0b000110;     //SPI1 SCK1 to RP112 Table 11-3
+    RPOR13bits.RP113R = 0b000111;     //SPI1 SS1 to RP113 Table 11-3
+
+    // Map SPI2 SS pin, other pins not remapable on dsPIC33EP512MU810
+    RPOR6bits.RP87R   = 0b001010;     //LCD_CS to RE7(RP87) Table 11-3
+
+    // Map SPI3 peripheral pins
+    RPINR29bits.SDI3R = 0b1001100;    //SPI3 MISO3 to RPI76 Table 11-1, 11-2
+    RPOR1bits.RP67R   = 0b000101;     //SPI3 MOSI3 to RP67 Table 11-3
+    RPOR1bits.RP66R   = 0b000110;     //SPI3 SCK3 to RP66 Table 11-3
+    RPOR0bits.RP65R   = 0b000111;     //SPI3 SS3 to RP65 Table 11-3
+
+    // Map SPI4 peripheral pins
+    RPINR31bits.SDI4R = 0b1000100;    //SPI4 MISO4 to RP68 Table 11-1, 11-2
+    RPOR3bits.RP71R   = 0b000101;     //SPI4 MOSI4 to RP71 Table 11-3
+    RPOR3bits.RP70R   = 0b000110;     //SPI4 SCK4 to RP70 Table 11-3
+    RPOR2bits.RP69R   = 0b000111;     //SPI4 SS4 to RP69 Table 11-3
+
+    // Map Audio Codec clock, interrupt and DCI module pins
+    RPINR24bits.CSDIR = 0b0010111;    // DCI CSDI to RA7 RPI23 Table 11-1, 11-2
+    RPOR4bits.RP80R   = 0b001011;     // DCI CSDO to RE0 RP80 Table 11-3
+    RPOR15bits.RP126R = 0b001101;     // DCI COFS to RG14 RP126 Table 11-3
+    RPOR14bits.RP125R = 0b001100;     // DCI CSCK to RG13 RP125 Table 11-3
+    RPOR5bits.RP82R   = 0b110001;     // REFCLK to RE2 RP82 Table 11-3 used for MCLK
+    RPINR0bits.INT1R  = 0b1010011;    // EXT INT1 to RE3 RPI83 Table 11-1, 11-2
 
     // Quadrature Encoder Interface #1 pin connections
     //RPINR14bits.QEA1R  = 0b1000100;  // Connect QEI1 QEA1 input to RP68 RD4 (Table 11-2)

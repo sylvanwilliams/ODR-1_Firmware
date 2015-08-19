@@ -26,7 +26,8 @@
 #include "p33exxxx.h" // processor specific definitions
 #include "LCD_driver.h"
 #include "UI_main.h"
-
+#include "DSPIC33E_hardware.h"
+#include "si5351a.h"
 
 //Arrays
 
@@ -35,7 +36,9 @@
 
 
 int16 rxtx_mode         = 0;          // Default to CW
-int32 radio_freq        = 7100000;    // Default to 40 meters
+int32 radio_freq        = 10000000;   // Default to 10 meters
+int32 radio_freq_min    = 500000;     // Minimum Radio Frequency MHz
+int32 radio_freq_max    = 60000000;   // Maximum Radio Frequency MHz
 int16 tx_offset         = 0;          // Transmit Offset
 
 int16 mic_gain          = 10;
@@ -602,3 +605,83 @@ void Display_UTC_24HR()
 
 }
 
+/*******************************************************************************
+* Change the Oscillator Frequency and set the bandpass filters based on frequency
+* Then update the display frequency
+*
+*
+*******************************************************************************/
+void Change_Freq()
+{
+    // Don't let radio go out of frequency bounds
+    if (radio_freq > radio_freq_max)
+    {
+        radio_freq = radio_freq_max;
+    }
+    if (radio_freq < radio_freq_min)
+    {
+        radio_freq = radio_freq_min;
+    }
+
+    // set si5351 freq to 2X desired freq
+    si5351aSetFrequency(2 * radio_freq);
+
+    if (radio_freq < 2690001)                                  // < 2.69MHz
+    {
+        BPF_S0  = 1;
+        BPF_S1  = 1;
+        BPF_CS0 = 0;
+        BPF_CS1 = 1;
+    }
+    else if ((radio_freq > 2690000)&&(radio_freq < 4800001))   // 2.69-4.80MHz
+    {
+        BPF_S0  = 1;
+        BPF_S1  = 1;
+        BPF_CS0 = 1;
+        BPF_CS1 = 0;
+    }
+    else if ((radio_freq > 4800000)&&(radio_freq < 7650001))   // 4.80-7.65MHz
+    {
+        BPF_S0  = 0;
+        BPF_S1  = 1;
+        BPF_CS0 = 0;
+        BPF_CS1 = 1;
+    }
+    else if ((radio_freq > 7650000)&&(radio_freq < 11000001))  // 7.65-11.0MHz
+    {
+        BPF_S0  = 0;
+        BPF_S1  = 1;
+        BPF_CS0 = 1;
+        BPF_CS1 = 0;
+    }
+    else if ((radio_freq > 11000000)&&(radio_freq < 16100001)) // 11.0-16.1MHz
+    {
+        BPF_S0  = 1;
+        BPF_S1  = 0;
+        BPF_CS0 = 0;
+        BPF_CS1 = 1;
+    }
+    else if ((radio_freq > 16100000)&&(radio_freq < 22800001)) // 16.1-22.8MHz
+    {
+        BPF_S0  = 1;
+        BPF_S1  = 0;
+        BPF_CS0 = 1;
+        BPF_CS1 = 0;
+    }
+    else if ((radio_freq > 22800000)&&(radio_freq < 31600001)) // 22.8-31.6MHz
+    {
+        BPF_S0  = 0;
+        BPF_S1  = 0;
+        BPF_CS0 = 0;
+        BPF_CS1 = 1;
+    }
+    else                                                       // > 31.6Mhz
+    {
+        BPF_S0  = 0;
+        BPF_S1  = 0;
+        BPF_CS0 = 1;
+        BPF_CS1 = 0;
+    }
+
+    Display_Frequency();  // Update Frequency Display
+}

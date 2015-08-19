@@ -52,7 +52,7 @@ extern "C" {
 #ifdef SNAP_PIC
 #pragma config ICS = PGD3               // ICD Communication Channel Select bits (Communicate on PGEC3 and PGED3)
 #else
-#pragma confic_ICS = PGD1               // ICD Communication Channel Select bits (Communicate on PGEC1 and PGED1)
+#pragma config_ICS = PGD1               // ICD Communication Channel Select bits (Communicate on PGEC1 and PGED1)
 #endif
 
 #pragma config RSTPRI = PF              // Reset Target Vector Select bit (Device will obtain reset instruction from Primary flash)

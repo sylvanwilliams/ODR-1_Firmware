@@ -10,6 +10,8 @@
    Modify to use DSPic I2C2 Write routine and to output complimentry
    output signals. Change crystal frequency to 25MHz in header file.
 
+   8-16-2015 N7IFC
+  Create seperate init routine, minimize small pll frequency change glitches
  *****************************************************************************/
 
 #include <stdint.h>
@@ -26,9 +28,9 @@
 //
 void setupPLL(uint8_t pll, uint8_t mult, uint32_t num, uint32_t denom)
 {
-	uint32_t P1;					// PLL config register P1
-	uint32_t P2;					// PLL config register P2
-	uint32_t P3;					// PLL config register P3
+	uint32_t P1;	// PLL config register P1
+	uint32_t P2;	// PLL config register P2
+	uint32_t P3;	// PLL config register P3
 
 	P1 = (uint32_t)(128 * ((float)num / (float)denom));
 	P1 = (uint32_t)(128 * (uint32_t)(mult) + P1 - 512);
@@ -101,39 +103,72 @@ void si5351aSetFrequency(uint32_t frequency)
 	uint32_t denom;
 	uint32_t divider;
 
-	divider = 900000000 / frequency;// Calculate the division ratio. 900,000,000 is the maximum internal 
-									// PLL frequency: 900MHz
-	if (divider % 2) divider--;		// Ensure an even integer division ratio
+	divider = 900000000 / frequency; // Calculate the division ratio. 900,000,000 is the maximum internal
+					// PLL frequency: 900MHz
+	if (divider % 2) divider--;     // Ensure an even integer division ratio
 
-	pllFreq = divider * frequency;	// Calculate the pllFrequency: the divider * desired output frequency
+	pllFreq = divider * frequency;  // Calculate the pllFrequency: the divider * desired output frequency
 
-	mult = pllFreq / xtalFreq;		// Determine the multiplier to get to the required pllFrequency
-	l = pllFreq % xtalFreq;			// It has three parts:
-	f = l;							// mult is an integer that must be in the range 15..90
-	f *= 1048575;					// num and denom are the fractional parts, the numerator and denominator
-	f /= xtalFreq;					// each is 20 bits (range 0..1048575)
-	num = f;						// the actual multiplier is  mult + num / denom
-	denom = 1048575;				// For simplicity we set the denominator to the maximum 1048575
+	mult = pllFreq / xtalFreq;       // Determine the multiplier to get to the required pllFrequency
+	l = pllFreq % xtalFreq;         // It has three parts:
+	f = l;				// mult is an integer that must be in the range 15..90
+	f *= 1048575;			// num and denom are the fractional parts, the numerator and denominator
+	f /= xtalFreq;			// each is 20 bits (range 0..1048575)
+	num = f;			// the actual multiplier is  mult + num / denom
+	denom = 1048575;		// For simplicity we set the denominator to the maximum 1048575
 
-									// Set up PLL A with the calculated multiplication ratio
+	// Set up PLL A with the calculated multiplication ratio
 	setupPLL(SI_SYNTH_PLL_A, mult, num, denom);
-									// Set up MultiSynth divider 0, with the calculated divider. 
-									// The final R division stage can divide by a power of two, from 1..128. 
-									// reprented by constants SI_R_DIV1 to SI_R_DIV128 (see si5351a.h header file)
-									// If you want to output frequencies below 1MHz, you have to use the 
-									// final R division stage
+	// Set up MultiSynth divider 0, with the calculated divider. 
+	// The final R division stage can divide by a power of two, from 1..128. 
+	// reprented by constants SI_R_DIV1 to SI_R_DIV128 (see si5351a.h header file)
+	// If you want to output frequencies below 1MHz, you have to use the 
+	// final R division stage
 	setupMultisynth(SI_SYNTH_MS_0, divider, SI_R_DIV_1);
         setupMultisynth(SI_SYNTH_MS_2, divider, SI_R_DIV_1);    // Set Multisynth 2 the same
+        // set crystal load capacitance to 8pf
+      //I2C2_Byte_Write(SI_XTAL_LD_CAP, 0b10010010);
+        // Turn OFF spread spectrum
+      //I2C2_Byte_Write(SI5351_SSC_PARAM0, 0b00000000);
 
-        I2C2_Byte_Write(SI_XTAL_LD_CAP, 0b10010010);        // set crystal load capacitance to 8pf
-        // I2C2_Byte_Write(SI5351_SSC_PARAM0, 0b00000000);        // Turn OFF spread spectrum
-
-									// Reset the PLL. This causes a glitch in the output. For small changes to 
-									// the parameters, you don't need to reset the PLL, and there is no glitch
-	I2C2_Byte_Write(SI_PLL_RESET, 0xA0);
-									// Finally switch on the CLK0 output (0x4F)
-									// and set the MultiSynth0 input to be PLL A
-	I2C2_Byte_Write(SI_CLK0_CONTROL, 0b01001100 | SI_CLK_SRC_PLL_A);
-        I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011100 | SI_CLK_SRC_PLL_A);  // Turn on clock 2 and invert output
+	// Reset the PLL. This causes a glitch in the output. For small changes to 
+	// the parameters, you don't need to reset the PLL, and there is no glitch
+      //I2C2_Byte_Write(SI_PLL_RESET, 0xA0);
+	// Finally switch on the CLK0 output (0x4F)
+	// and set the MultiSynth0 input to be PLL A
+      //I2C2_Byte_Write(SI_CLK0_CONTROL, 0b01001100 | SI_CLK_SRC_PLL_A);
+        // Turn on CLK2 and invert output
+      //I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011100 | SI_CLK_SRC_PLL_A);
 }
 
+/******************************************************************************
+ * Function:       Init_si5351a
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Initialize the si5351a registers that only need set once.
+ *****************************************************************************/
+
+void Init_si5351a(void)
+{
+    si5351aSetFrequency(20000000); // Set receive frequency to 10 MHz
+    // set crystal load capacitance to 8pf
+    I2C2_Byte_Write(SI_XTAL_LD_CAP, 0b10010010);
+    // Turn OFF spread spectrum
+    I2C2_Byte_Write(SI5351_SSC_PARAM0, 0b00000000);
+    // Reset the PLL. This causes a glitch in the output. For small changes to
+    // the parameters, you don't need to reset the PLL, and there is no glitch
+    I2C2_Byte_Write(SI_PLL_RESET, 0xA0);
+    // Finally switch on the CLK0 output (0x4F)
+    // and set the MultiSynth0 input to be PLL A
+    I2C2_Byte_Write(SI_CLK0_CONTROL, 0b01001100 | SI_CLK_SRC_PLL_A);
+    // Turn on CLK2 and invert output
+    I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011100 | SI_CLK_SRC_PLL_A);
+
+}
