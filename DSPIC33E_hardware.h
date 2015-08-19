@@ -18,9 +18,9 @@
 #define __DSPIC33E_HARDWARE_H
 
 // Compile for SNAPPIC evaluation board
-#ifndef SNAP_PIC
-#define SNAP_PIC
-#endif
+//#ifndef SNAP_PIC
+//#define SNAP_PIC
+//#endif
 
 
 // all sort of CPU clock dependent constants
@@ -51,7 +51,7 @@
 
 // define general I/O signals
 // Use LAT for write only operations and PORT for read operations
-#define PERIODIC   LATDbits.LATD0     // Test pin for watching execution times
+#define PERIODIC   LATDbits.LATD8     // Test pin for watching execution times
 #define	LCD_CS     LATEbits.LATE7     // LCD Slave Select on RE7(RP87)
 #define	LCD_REST   LATEbits.LATE6     // LCD Reset on RE6(RPI86)
 #define BPF_S0     LATDbits.LATD14    // Band Pass Filter Select 0

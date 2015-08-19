@@ -151,26 +151,26 @@ void Service_Interface(void)
  *****************************************************************************/
 void Init_Mixer_Board()
 {
-BPF_S0  = 0;    // Band Pass Filter Select 0
-BPF_S1  = 0;    // Band Pass Filter Select 1
-BPF_CS0 = 0;    // Band Pass Filter Chip Select 0
-BPF_CS1 = 0;    // Band Pass Filter Chip Select 1
-ATT_S0  = 0;    // RF Attenuator Select 0
-ATT_S1  = 0;    // RF Attenuator Select 1
-TX_RX   = 0;    // RX/TX Control line, 0=Receive
-AUX_OUT = 0;    // Rear Auxiliary Output
-PTT_OUT = 0;    // Rear PTT Output
+    BPF_S0  = 0;    // Band Pass Filter Select 0
+    BPF_S1  = 0;    // Band Pass Filter Select 1
+    BPF_CS0 = 0;    // Band Pass Filter Chip Select 0
+    BPF_CS1 = 0;    // Band Pass Filter Chip Select 1
+    ATT_S0  = 0;    // RF Attenuator Select 0
+    ATT_S1  = 0;    // RF Attenuator Select 1
+    TX_RX   = 0;    // RX/TX Control line, 0=Receive
+    AUX_OUT = 0;    // Rear Auxiliary Output
+    PTT_OUT = 0;    // Rear PTT Output
 
-EN_12V  = 1;    // 12V Power Enable
-delayms(250);   // Delay for 250mS for supply rails
+    EN_12V  = 1;    // 12V Power Enable
+    delayms(250);   // Delay for 250mS for supply rails
 
-// Default to 6M Bandpass filter
-BPF_S0  = 0;
-BPF_S1  = 1;
-BPF_CS0 = 1;
-BPF_CS1 = 0;
+    // Default to 6M Bandpass filter
+    BPF_S0  = 0;
+    BPF_S1  = 1;
+    BPF_CS0 = 1;
+    BPF_CS1 = 0;
 
-// Default osillator frequency to 6M (2 * 10MHz)
-//si5351aSetFrequency(20000000); // set si5351 freq to 20MHz
+    // Default osillator frequency to 6M (2 * 10MHz)
+    //si5351aSetFrequency(20000000); // set si5351 freq to 20MHz
     Init_si5351a() ;      // Initialize si5351 clock chip
 }

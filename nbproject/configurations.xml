@@ -16,6 +16,7 @@
       <itemPath>UI_page2.h</itemPath>
       <itemPath>si5351a.h</itemPath>
       <itemPath>devconfig.h</itemPath>
+      <itemPath>TLV320AIC3204.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -34,6 +35,7 @@
       <itemPath>UI_page1.c</itemPath>
       <itemPath>UI_page2.c</itemPath>
       <itemPath>si5351a.c</itemPath>
+      <itemPath>TLV320AIC3204.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -51,19 +53,16 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.24</languageToolchainVersion>
-        <platform>4</platform>
+        <languageToolchainVersion>1.20</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
-        <archiverTool>
-        </archiverTool>
         <loading>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
-          <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
       </compileType>
@@ -116,9 +115,6 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
       </C30>
-      <C30-AR>
-        <property key="additional-options-chop-files" value="false"/>
-      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
