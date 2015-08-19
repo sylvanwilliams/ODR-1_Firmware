@@ -78,62 +78,56 @@ int16 value_07 = 7;
 int16 value_08 = 8;
 int16 value_09 = 9;
 
-
 /*******************************************************************************
-* Navigation pointer #1 is associated with the upper encoder
-*
-*
-*******************************************************************************/
+ * Navigation pointer #1 is associated with the upper encoder
+ *
+ *
+ *******************************************************************************/
 void Page2_pointer1_update()
 {
+    int16 encoderCount = Encoder1Count();
+    static eButtonState oldButtonState = NO_PRESS;
 
-    if (encoder1_PBcount > 0x8000)       //If button has been pressed and released
+    if ((NO_PRESS == oldButtonState) && (PRESS == Encoder1ButtonEvent())) //If button has been pressed and released
     {
-        if (page_pointer1 & 0x8000)      // If pointer already has the focus
+        if (page_pointer1 & 0x8000) // If pointer already has the focus
         {
-            page_pointer1 &= 0x7FFF;     // Remove pointer focus and keep position
+            page_pointer1 &= 0x7FFF; // Remove pointer focus and keep position
             BACK_COLOR = field_color;
-            Refresh_Parameter_Name();    // Display current parameter name
+            Refresh_Parameter_Name(); // Display current parameter name
             BACK_COLOR = char_hglt_color;
-            Refresh_Parameter_Value();    // Display current parameter value
-            encoder1_count = 0;          // Zero out the rotary encoder count
+            Refresh_Parameter_Value(); // Display current parameter value
         }
         else
         {
-            Save_Page2_Item();            // Parameter update complete,save to EEPROM
+            Save_Page2_Item(); // Parameter update complete,save to EEPROM
             BACK_COLOR = char_hglt_color;
-            Refresh_Parameter_Name();    // Display current parameter name
+            Refresh_Parameter_Name(); // Display current parameter name
             BACK_COLOR = field_color;
-            page_pointer1 |= 0x8000;      // Give pointer focus and keep position
-            Refresh_Parameter_Value();    // Display current parameter value
-            encoder1_count = 0;           // Zero out the rotary encoder count
+            page_pointer1 |= 0x8000; // Give pointer focus and keep position
+            Refresh_Parameter_Value(); // Display current parameter value
         }
-        encoder1_PBcount = 0;             // Zero out the push button counter
     }
 
-    else if ((page_pointer1 & 0x8000) && (encoder1_count)) //pointer has focus and encoder moved
+    else if ((page_pointer1 & 0x8000) && (encoderCount)) //pointer has focus and encoder moved
     {
-        page_pointer1 += encoder1_count;   // add the rotary encoder count to pointer position
-        encoder1_count = 0;                    // clear encoder count after use
-        if (page_pointer1 > 0x8009)        // if above highest item count
+        page_pointer1 += encoderCount; // add the rotary encoder count to pointer position
+        if (page_pointer1 > 0x8009) // if above highest item count
         {
-            page_pointer1 = 0x8009;        // Stop at highest item count
+            page_pointer1 = 0x8009; // Stop at highest item count
         }
-        else if (page_pointer1 < 0x8000)   // if below lowest item count
+        else if (page_pointer1 < 0x8000) // if below lowest item count
         {
-            page_pointer1 = 0x8000;        // Stop at lowest item count
+            page_pointer1 = 0x8000; // Stop at lowest item count
         }
         BACK_COLOR = char_hglt_color;
-        Refresh_Parameter_Name();    // Display current parameter name
+        Refresh_Parameter_Name(); // Display current parameter name
         BACK_COLOR = field_color;
-        Refresh_Parameter_Value();    // Display current parameter value
+        Refresh_Parameter_Value(); // Display current parameter value
     }
 
-    else if (encoder1_count) //item has focus and encoder moved
-    {
-        // Ignore encoder movement while the parameter value has focus
-        encoder1_count = 0;   // clear encoder count
-    }
+    oldButtonState = Encoder1ButtonEvent();
+    Encoder1CountZero();
 }
 
 
@@ -144,26 +138,24 @@ void Page2_pointer1_update()
 *******************************************************************************/
 void Page2_pointer2_update()
 {
+    int16 encoderCount = Encoder2Count();
+    static eButtonState oldButtonState = NO_PRESS;
 
-    if (encoder2_PBcount > 0x8000)       //If button has been pressed and released
+    if ((NO_PRESS == oldButtonState) && (PRESS == Encoder2ButtonEvent()))       //If button has been pressed and released
     {
         if (page_pointer2 & 0x8000)      // If pointer already has the focus
         {
             page_pointer2 &= 0x7FFF;     // Remove pointer focus and keep position
-            encoder2_count = 0;          // Zero out the rotary encoder count
         }
         else
         {
             page_pointer2 |= 0x8000;      // Give pointer focus and keep position
-            encoder2_count = 0;           // Zero out the rotary encoder count
         }
-        encoder2_PBcount = 0;             // Zero out the push button counter
     }
 
-    else if ((page_pointer2 & 0x8000) && (encoder2_count)) //pointer has focus and encoder moved
+    else if ((page_pointer2 & 0x8000) && (encoderCount)) //pointer has focus and encoder moved
     {
-        page_pointer2 += encoder2_count;   // add the rotary encoder count to pointer position
-        encoder2_count = 0;                // clear encoder count after use
+        page_pointer2 += encoderCount;   // add the rotary encoder count to pointer position
         if (page_pointer2 > 0x8009)        // if above highest character position
         {
             page_pointer2 = 0x8009;        // Stop at highest character position
@@ -176,13 +168,15 @@ void Page2_pointer2_update()
         Refresh_Parameter_Value();    // Display current parameter value
     }
 
-    else if (encoder2_count) // value has focus and encoder moved
+    else if (encoderCount) // value has focus and encoder moved
     {
         Update_Parameter_Value();  // Update the parameter value
-        encoder2_count = 0;   // clear encoder count after use
         BACK_COLOR = char_hglt_color;
         Refresh_Parameter_Value();    // Display current parameter value
     }
+    
+    oldButtonState = Encoder2ButtonEvent();
+    Encoder2CountZero();
 }
 
 
@@ -264,10 +258,12 @@ void Refresh_Parameter_Value()
 *******************************************************************************/
 void Update_Parameter_Value()
 {
+    int16 encoderCount = Encoder2Count();
+    
     switch(page_pointer1) // Action based on item being pointed to
     {
         case 0:  // Change screen color theme
-            active_color_pallet += encoder2_count;    // Change color pallet
+            active_color_pallet += encoderCount;    // Change color pallet
             if (active_color_pallet > 2)              // if above highest possible count
             {
                 active_color_pallet = 2;              // stop at max value
@@ -283,7 +279,7 @@ void Update_Parameter_Value()
 
         break;
         case 1:  // Change LCD Backlight level
-            value_01 += encoder2_count;         // New Backlight value
+            value_01 += encoderCount;         // New Backlight value
             if (value_01 > 100)                 // if above highest legal value
             {
                 value_01 = 100;                 // stop at max value
@@ -301,28 +297,28 @@ void Update_Parameter_Value()
                     radio_freq = 21000000;
                 break;
                 case 2:  // Pointer position 2 freq digit 8
-                    radio_freq += (10000000 * encoder2_count);
+                    radio_freq += (10000000 * encoderCount);
                 break;
                 case 3:  // Pointer position 3 freq digit 7
-                    radio_freq += (1000000 * encoder2_count);
+                    radio_freq += (1000000 * encoderCount);
                 break;
                 case 4:  // Pointer position 4 freq digit 6
-                    radio_freq += (100000 * encoder2_count);
+                    radio_freq += (100000 * encoderCount);
                 break;
                 case 5:  // Pointer position 5 freq digit 5
-                    radio_freq += (10000 * encoder2_count);
+                    radio_freq += (10000 * encoderCount);
                 break;
                 case 6:  // Pointer position 6 freq digit 4
-                    radio_freq += (1000 * encoder2_count);
+                    radio_freq += (1000 * encoderCount);
                 break;
                 case 7:  // Pointer position 7 freq digit 3
-                    radio_freq += (100 * encoder2_count);
+                    radio_freq += (100 * encoderCount);
                 break;
                 case 8:  // Pointer position 8 freq digit 2
-                    radio_freq += (10 * encoder2_count);
+                    radio_freq += (10 * encoderCount);
                 break;
                 case 9:  // Pointer position 9 freq digit 1
-                    radio_freq += encoder2_count;
+                    radio_freq += encoderCount;
                 break;
 
                 if (radio_freq > 55000000) // High freq boundary
@@ -336,7 +332,7 @@ void Update_Parameter_Value()
             }
         break;
         case 3:  // Default Mic Gain
-            mic_gain += encoder2_count;
+            mic_gain += encoderCount;
             if (mic_gain > 20)        // if above highest possible count
             {
                 mic_gain = 20;        // stop at max
@@ -347,22 +343,22 @@ void Update_Parameter_Value()
             }
         break;
         case 4:  // Pointer position 4
-            value_04 += encoder2_count;              // Dummy count variable
+            value_04 += encoderCount;              // Dummy count variable
         break;
         case 5:  // Pointer position 5
-            value_05 += encoder2_count;              // Dummy count variable
+            value_05 += encoderCount;              // Dummy count variable
         break;
         case 6:  // Pointer position 6
-            value_06 += encoder2_count;              // Dummy count variable
+            value_06 += encoderCount;              // Dummy count variable
         break;
         case 7:  // Pointer position 7
-            value_07 += encoder2_count;              // Dummy count variable
+            value_07 += encoderCount;              // Dummy count variable
         break;
         case 8:  // Pointer position 8
-            value_08 += encoder2_count;              // Dummy count variable
+            value_08 += encoderCount;              // Dummy count variable
         break;
         case 9:  // Pointer position 9
-            value_09 += encoder2_count;              // Dummy count variable
+            value_09 += encoderCount;              // Dummy count variable
         break;
     }
 }

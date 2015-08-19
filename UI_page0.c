@@ -55,26 +55,24 @@ int16 af_gain           = 15;
 *******************************************************************************/
 void Page0_pointer1_update()
 {
+    int16 encoderCount = Encoder1Count();
+    static eButtonState oldButtonState = NO_PRESS;
 
-    if (encoder1_PBcount > 0x8000) //If button has been pressed and released
+    if ((NO_PRESS == oldButtonState) && (PRESS == Encoder1ButtonEvent())) //If button has been pressed and released
     {
         if (page_pointer1 & 0x8000) // If pointer already has the focus
         {
             page_pointer1 &= 0x7FFF; // Remove pointer focus and keep position
-            encoder1_count = 0;          // Zero out the rotary encoder count
         }
         else
         {
             page_pointer1 |= 0x8000; // Give pointer focus and keep position
-            encoder1_count = 0;          // Zero out the rotary encoder count
         }
-        encoder1_PBcount = 0;            // Zero out the push button counter
     }
 
-    else if ((page_pointer1 & 0x8000) && (encoder1_count)) //pointer has focus and encoder moved
+    else if ((page_pointer1 & 0x8000) && (encoderCount)) //pointer has focus and encoder moved
     {
-        page_pointer1 += encoder1_count;   // add the rotary encoder count to pointer position
-        encoder1_count = 0;                    // clear encoder count after use
+        page_pointer1 += encoderCount;   // add the rotary encoder count to pointer position
         if (page_pointer1 > 0x8009)        // if above highest possible count
         {
             page_pointer1 = 0x8009;        // Stop at highest count
@@ -89,13 +87,13 @@ void Page0_pointer1_update()
         Display_TX_Offset();  // Update TX Offset Display
     }
 
-    else if (encoder1_count) //item has focus and encoder moved
+    else if (encoderCount) //item has focus and encoder moved
     {
 
         switch(page_pointer1) // Action based on item being pointed to
         {
             case 0x0000:  // Pointer position 0 Mode
-                rxtx_mode += encoder1_count;
+                rxtx_mode += encoderCount;
                 if (rxtx_mode > 4)        // if above highest possible count
                 {
                     rxtx_mode = 0;        // roll over
@@ -107,39 +105,39 @@ void Page0_pointer1_update()
                 Display_RXTX_Mode();      // Display new mode selected
             break;
             case 0x0001:  // Pointer position 1 freq digit 8
-                radio_freq += (10000000 * encoder1_count);
+                radio_freq += (10000000 * encoderCount);
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0002:  // Pointer position 2 freq digit 7
-                radio_freq += (1000000 * encoder1_count);
+                radio_freq += (1000000 * encoderCount);
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0003:  // Pointer position 3 freq digit 6
-                radio_freq += (100000 * encoder1_count);
+                radio_freq += (100000 * encoderCount);
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0004:  // Pointer position 4 freq digit 5
-                radio_freq += (10000 * encoder1_count);
+                radio_freq += (10000 * encoderCount);
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0005:  // Pointer position 5 freq digit 4
-                radio_freq += (1000 * encoder1_count);
+                radio_freq += (1000 * encoderCount);
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0006:  // Pointer position 6 freq digit 3
-                radio_freq += (100 * encoder1_count);
+                radio_freq += (100 * encoderCount);
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0007:  // Pointer position 7 freq digit 2
-                radio_freq += (10 * encoder1_count);
+                radio_freq += (10 * encoderCount);
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0008:  // Pointer position 8 freq digit 1
-                radio_freq += encoder1_count;
+                radio_freq += encoderCount;
                 Display_Frequency();  // Update Frequency Display
             break;
             case 0x0009:  // Pointer position 9 TX offset
-                tx_offset += encoder1_count;
+                tx_offset += encoderCount;
                 if (tx_offset > 50)        // if above highest possible count
                 {
                     tx_offset = 50;        // set to highest legal count
@@ -151,130 +149,132 @@ void Page0_pointer1_update()
                 Display_TX_Offset();      // Display new TX offset
             break;
         }
-        encoder1_count = 0;                    // clear encoder count after use
+ 
     }
+    
+    oldButtonState = Encoder1ButtonEvent();
+    Encoder1CountZero();
 }
 
-
 /*******************************************************************************
-* Navigation pointer #2 is associated with the lower encoder and is used to
-* highlight the item being pointed to. If the nav pointer has the focus, the
-* pointer itself is moved from item to item. If the pointer does not have focus,
-* the item being pointed to will have the focus.
-*
-*
-*
-*******************************************************************************/
+ * Navigation pointer #2 is associated with the lower encoder and is used to
+ * highlight the item being pointed to. If the nav pointer has the focus, the
+ * pointer itself is moved from item to item. If the pointer does not have focus,
+ * the item being pointed to will have the focus.
+ *
+ *
+ *
+ *******************************************************************************/
 void Page0_pointer2_update()
 {
+    int16 encoderCount = Encoder2Count();
+    static eButtonState oldButtonState = NO_PRESS;
 
-    if (encoder2_PBcount > 0x8000) //If button has been pressed and released
+    if ((NO_PRESS == oldButtonState) && (PRESS == Encoder2ButtonEvent())) //If button has been pressed and released
     {
         if (page_pointer2 & 0x8000) // If pointer already has the focus
         {
             page_pointer2 &= 0x7FFF; // Remove pointer focus and keep position
-            encoder2_count = 0;          // Zero out the rotary encoder count
         }
         else
         {
             page_pointer2 |= 0x8000; // Give pointer focus and keep position
-            encoder2_count = 0;          // Zero out the rotary encoder count
         }
-        encoder2_PBcount = 0;            // Zero out the push button counter
     }
 
-    else if ((page_pointer2 & 0x8000) && (encoder2_count)) //pointer has focus and encoder moved
+    else if ((page_pointer2 & 0x8000) && (encoderCount)) //pointer has focus and encoder moved
     {
-        page_pointer2 += encoder2_count;   // add the rotary encoder count to pointer position
-        encoder2_count = 0;                    // clear encoder count after use
-        if (page_pointer2 > 0x8005)        // if above highest possible count
+        page_pointer2 += encoderCount; // add the rotary encoder count to pointer position
+        if (page_pointer2 > 0x8005) // if above highest possible count
         {
-            page_pointer2 = 0x8005;        // Stop at highest count
+            page_pointer2 = 0x8005; // Stop at highest count
         }
-        else if (page_pointer2 < 0x8000)   // if below lowest possible count
+        else if (page_pointer2 < 0x8000) // if below lowest possible count
         {
-            page_pointer2 = 0x8000;        // Stop at lowest count
+            page_pointer2 = 0x8000; // Stop at lowest count
         }
 
-        Display_MicGain();      // Display Mic Gain
-        Display_KeyerSpeed();   // Display Keyer Speed
-        Display_FilterBW();     // Display BW Filter
-        Display_RFGain();       // Display RF Gain
-        Display_AFGain();       // Display AFGain
+        Display_MicGain(); // Display Mic Gain
+        Display_KeyerSpeed(); // Display Keyer Speed
+        Display_FilterBW(); // Display BW Filter
+        Display_RFGain(); // Display RF Gain
+        Display_AFGain(); // Display AFGain
     }
 
-    else if (encoder2_count) //item has focus and encoder moved
+    else if (encoderCount) //item has focus and encoder moved
     {
 
-        switch(page_pointer2) // Action based on item being pointed to
+        switch (page_pointer2) // Action based on item being pointed to
         {
-            case 0x0000:  // Pointer position 0 Main Menu
+        case 0x0000: // Pointer position 0 Main Menu
 
-                Display_MicGain();      // temporarily do something for this case
+            Display_MicGain(); // temporarily do something for this case
             break;
-            case 0x0001:  // Pointer position 1 Mic Gain
-                mic_gain += encoder2_count;
-                if (mic_gain > 20)        // if above highest possible count
-                {
-                    mic_gain = 20;        // stop at max
-                }
-                else if (mic_gain < 0)   // if below lowest possible count
-                {
-                    mic_gain = 0;        // stop at minimum
-                }
-                Display_MicGain();  // Update Mic Gain Display
+        case 0x0001: // Pointer position 1 Mic Gain
+            mic_gain += encoderCount;
+            if (mic_gain > 20) // if above highest possible count
+            {
+                mic_gain = 20; // stop at max
+            }
+            else if (mic_gain < 0) // if below lowest possible count
+            {
+                mic_gain = 0; // stop at minimum
+            }
+            Display_MicGain(); // Update Mic Gain Display
             break;
-            case 0x0002:  // Pointer position 2 keyer speed
-                key_speed += encoder2_count;
-                if (key_speed > 50)        // if above highest possible count
-                {
-                    key_speed = 50;        // stop at max
-                }
-                else if (key_speed < 5)   // if below lowest possible count
-                {
-                    key_speed = 5;        // stop at minimum
-                }
-                Display_KeyerSpeed();  // Update Keyer speed
+        case 0x0002: // Pointer position 2 keyer speed
+            key_speed += encoderCount;
+            if (key_speed > 50) // if above highest possible count
+            {
+                key_speed = 50; // stop at max
+            }
+            else if (key_speed < 5) // if below lowest possible count
+            {
+                key_speed = 5; // stop at minimum
+            }
+            Display_KeyerSpeed(); // Update Keyer speed
             break;
-            case 0x0003:  // Pointer position 3 BW Filter
-                filter_bw += encoder2_count;
-                if (filter_bw > 1000)        // if above highest possible count
-                {
-                    filter_bw = 1000;        // stop at max
-                }
-                else if (filter_bw < 100)   // if below lowest possible count
-                {
-                    filter_bw = 100;        // stop at minimum
-                }
-                Display_FilterBW();  // Update BW Filter Display
+        case 0x0003: // Pointer position 3 BW Filter
+            filter_bw += encoderCount;
+            if (filter_bw > 1000) // if above highest possible count
+            {
+                filter_bw = 1000; // stop at max
+            }
+            else if (filter_bw < 100) // if below lowest possible count
+            {
+                filter_bw = 100; // stop at minimum
+            }
+            Display_FilterBW(); // Update BW Filter Display
             break;
-            case 0x0004:  // Pointer position 4 RF Gain
-                rf_gain += encoder2_count;
-                if (rf_gain > 30)        // if above highest possible count
-                {
-                    rf_gain = 30;        // stop at max
-                }
-                else if (rf_gain < -30)   // if below lowest possible count
-                {
-                    rf_gain = -30;        // stop at minimum
-                }
-                Display_RFGain();  // Update RF Gain Display
+        case 0x0004: // Pointer position 4 RF Gain
+            rf_gain += encoderCount;
+            if (rf_gain > 30) // if above highest possible count
+            {
+                rf_gain = 30; // stop at max
+            }
+            else if (rf_gain < -30) // if below lowest possible count
+            {
+                rf_gain = -30; // stop at minimum
+            }
+            Display_RFGain(); // Update RF Gain Display
             break;
-            case 0x0005:  // Pointer position 5 AF Gain
-                af_gain += encoder2_count;
-                if (af_gain > 50)        // if above highest possible count
-                {
-                    af_gain = 50;        // stop at max
-                }
-                else if (af_gain < 0)   // if below lowest possible count
-                {
-                    af_gain = 0;        // stop at minimum
-                }
-                Display_AFGain();  // Update AF Gain Display
+        case 0x0005: // Pointer position 5 AF Gain
+            af_gain += encoderCount;
+            if (af_gain > 50) // if above highest possible count
+            {
+                af_gain = 50; // stop at max
+            }
+            else if (af_gain < 0) // if below lowest possible count
+            {
+                af_gain = 0; // stop at minimum
+            }
+            Display_AFGain(); // Update AF Gain Display
             break;
         }
-        encoder2_count = 0;                    // clear encoder count after use
     }
+
+    oldButtonState = Encoder2ButtonEvent();
+    Encoder2CountZero();
 }
 
 
@@ -284,6 +284,7 @@ void Page0_pointer2_update()
 *******************************************************************************/
 void Refresh_page0()
 {
+   
     LCD_Clear(field_color);        //Clear the screen with field color
 
     POINT_COLOR = border_color;
@@ -354,7 +355,7 @@ void Refresh_page0()
 
     POINT_COLOR = char_norm_color;
     BACK_COLOR = field_color;
-    
+
     Display_RXTX_Mode();    // Update Mode display
     Display_Frequency();    // Update Frequency Display
     Display_TX_Offset();    // Update TX Offset Display
@@ -363,6 +364,7 @@ void Refresh_page0()
     Display_FilterBW();     // Display BW Filter
     Display_RFGain();       // Display RF Gain
     Display_AFGain();       // Display AFGain
+ 
 }
 
 /*******************************************************************************

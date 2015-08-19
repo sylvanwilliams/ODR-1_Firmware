@@ -29,14 +29,18 @@
 //Defines to make code easier to read	
 //#define LCD_W 240   // Portrate
 //#define LCD_H 320   // Portrate
+typedef enum eButtonState {NO_PRESS, PRESS} eButtonState;
+typedef enum eButtonEvent {NONE, QUICK, EXTENDED} eButtonEvent;
+
+typedef struct sEncoderData{
+    int16 oldCount;
+    int16 count;
+    uint16 buttonCount;
+    eButtonState buttonState;
+    eButtonState oldButtonState;
+}sEncoderData;
 
 // variables available for external access
-extern  int16 encoder1_old;
-extern  int16 encoder1_count;
-extern uint16 encoder1_PBcount;
-extern  int16 encoder2_old;
-extern  int16 encoder2_count;
-extern uint16 encoder2_PBcount;
 extern uint16 current_page;
 extern int16 page_pointer1;          // pointer to item on page
 extern int16 page_pointer2;          // pointer to item on page
@@ -53,4 +57,12 @@ extern uint16 border_color;       // Outer Border Color
 void Encoder1_Update();           // update encoder 1 status
 void Encoder2_Update();           // update encoder 1 status
 void Color_pallet_update();       // update the color palate
+
+int16 Encoder1Count(void);
+void Encoder1CountZero(void);
+eButtonState Encoder1ButtonEvent(void);
+
+int16 Encoder2Count(void);
+void Encoder2CountZero(void);
+eButtonState Encoder2ButtonEvent(void);
 #endif

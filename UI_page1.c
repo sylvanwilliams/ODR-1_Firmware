@@ -45,49 +45,51 @@ int16 old_pointer1 = 0;   // Indicates menu item that lost pointer focus
 void Page1_pointer1_update()
 {
 
-    if (encoder1_PBcount > 0x8000)       //If button has been pressed and released
+    int16 encoderCount = Encoder1Count();
+    static eButtonState oldButtonState = NO_PRESS;
+
+    if ((NO_PRESS == oldButtonState) && (PRESS == Encoder1ButtonEvent())) //If button has been pressed and released
     {
-        if (page_pointer1 & 0x8000)      // If pointer already has the focus
+        if (page_pointer1 & 0x8000) // If pointer already has the focus
         {
-            page_pointer1 &= 0x7FFF;     // Remove pointer focus and keep position
-            encoder1_count = 0;          // Zero out the rotary encoder count
+            page_pointer1 &= 0x7FFF; // Remove pointer focus and keep position
         }
         else
         {
             Save_Page1_Item();            // Menu item update complete,save to EEPROM
-            page_pointer1 |= 0x8000;      // Give pointer focus and keep position
-            encoder1_count = 0;           // Zero out the rotary encoder count
+            page_pointer1 |= 0x8000; // Give pointer focus and keep position
         }
-        encoder1_PBcount = 0;             // Zero out the push button counter
     }
-
-    else if ((page_pointer1 & 0x8000) && (encoder1_count)) //pointer has focus and encoder moved
+    
+    else if ((page_pointer1 & 0x8000) && (encoderCount)) //pointer has focus and encoder moved
     {
         old_pointer1 = page_pointer1;       // Save old pointer position less the flag
-        page_pointer1 += encoder1_count;   // add the rotary encoder count to pointer position
-        encoder1_count = 0;                    // clear encoder count after use
-        if (page_pointer1 > 0x8017)        // if above highest item count
+        page_pointer1 += encoderCount;   // add the rotary encoder count to pointer position
+        if (page_pointer1 > 0x8017)        // if above highest possible count
         {
-            page_pointer1 = 0x8017;        // Stop at highest item count
+            page_pointer1 = 0x8017;        // Stop at highest count
         }
-        else if (page_pointer1 < 0x8000)   // if below lowest item count
+        else if (page_pointer1 < 0x8000)   // if below lowest possible count
         {
-            page_pointer1 = 0x8000;        // Stop at lowest item count
+            page_pointer1 = 0x8000;        // Stop at lowest count
         }
+
         Refresh_Page1_Item(old_pointer1 & 0x0FFF);  // Refresh item previously pointed to
         BACK_COLOR = char_hglt_color;
         Refresh_Page1_Item(page_pointer1 & 0x0FFF); // Refresh item currently pointed to
         BACK_COLOR = field_color;
     }
-
-    else if (encoder1_count) //item has focus and encoder moved
+    
+    else if (encoderCount) //item has focus and encoder moved
     {
         Update_Page1_Item();    // update the item value
         BACK_COLOR = char_hglt_color;
         Refresh_Page1_Item(page_pointer1); // Refresh item currently pointed to
         BACK_COLOR = field_color;
-        encoder1_count = 0;   // clear encoder count after use
     }
+    
+    oldButtonState = Encoder1ButtonEvent();
+    Encoder1CountZero();
 }
 
 /*******************************************************************************

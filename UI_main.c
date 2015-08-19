@@ -31,18 +31,12 @@
 #include "DSPIC33E_hardware.h"
 
 #define MENU_PRESS_DURATION 2
-#define BUTTON_TICKS        ((unsigned int)(MENU_PRESS_DURATION/CYCLE_TIME)/2 | 0x8000)
+#define BUTTON_TICKS        ((unsigned int)(MENU_PRESS_DURATION/TIMER1_CYCLE_TIME))
 
 //Arrays
 
 
 //Variables
-int16 encoder1_old      = 0;
-int16 encoder1_count    = 0;
-uint16 encoder1_PBcount = 0;
-int16 encoder2_old      = 0;
-int16 encoder2_count    = 0;
-uint16 encoder2_PBcount = 0;
 uint16 current_page = 0;
 int16 page_pointer1    = 5;          // Default to kHz freq
 int16 page_pointer2    = 5;          // Default to AF gain
@@ -55,106 +49,155 @@ uint16 field_color;     // Main field Color
 uint16 heading_color;   // Heading Color
 uint16 border_color;    // Border Color
 
+sEncoderData encoder1Data;
+sEncoderData encoder2Data;
 
 /*******************************************************************************
-* Encoder 1 Status updates the encoder rotation count and push button status.
-* The rotary encoder changes 4 states per detent so the last two bits are masked
-* so that items increment once per detent.
-* The encoder and PB counts need to be cleared after use by other functions.
-* The push button count tells how long the button was pressed before released
-* and traps the count on button release. The MSb indicates pressed and released.
-*******************************************************************************/
+ * Encoder 1 Status updates the encoder rotation count and push button status.
+ * The rotary encoder changes 4 states per detent so the last two bits are masked
+ * so that items increment once per detent.
+ * The encoder and PB counts need to be cleared after use by other functions.
+ * The push button count tells how long the button was pressed before released
+ * and traps the count on button release. The MSb indicates pressed and released.
+ * IMPORTANT! The encoderDatax.count member is cumulative per ISR. You MUST
+ * clear it after servicing the UI is finished
+ *******************************************************************************/
 void Encoder1_Update()
 {
     int16 encoder1_new;
-
+    
+    encoder1Data.oldButtonState = encoder1Data.buttonState;
+    
     encoder1_new = (POS1CNTL & 0xFFFC); // Read encoder1 position zero last two bits
-    if (encoder1_new != encoder1_old)   // if position has changed
+    if (encoder1_new != encoder1Data.oldCount) // if position has changed
     {
-        encoder1_count += ((encoder1_new - encoder1_old) >>2); // Update new count
-        encoder1_old = encoder1_new;                           // Store last read
+        encoder1Data.count += ((encoder1_new - encoder1Data.oldCount) >> 2); // Update new count
+        encoder1Data.oldCount = encoder1_new; // Store last read
     }
 
-    if (encoder1_PBcount < 0x8000)      // If button release not yet detected (MSB set)
+    if(!QEI1IOCbits.INDEX) //Don't care about state, just count
     {
-        if (!QEI1IOCbits.INDEX)         // if button is still being pressed
+        encoder1Data.buttonCount++;
+    }
+    else    //Button not depressed so reset count
+    {
+        encoder1Data.buttonCount = 0;
+        encoder1Data.buttonState = NONE;
+    }
+
+    if (encoder1Data.buttonCount) 
+    {
+        if (encoder1Data.buttonCount > BUTTON_TICKS) // If button was held for defined duration
         {
-            encoder1_PBcount ++;        // increment the PBcounter
-        }
-        else if (encoder1_PBcount)      // If button released and count is non-zero
-        {
-            encoder1_PBcount |= 0x8000; // Set MSB indicating button released and non-zero count trapped
-            if (encoder1_PBcount > BUTTON_TICKS)  // If button was held for 2 seconds
+            encoder1Data.buttonState = EXTENDED;
+            if (current_page == 0) // If we are on page 0
             {
-                if (current_page == 0)  // If we are on page 0
-                {
-                    current_page = 1;   // Switch to page 1
-                    page_pointer1 = 0x8000;  // Default to item 0 and pointer has focus
-                    Refresh_page1();    // display page 1
-                }
-                else
-                {
-                    current_page = 0;  // exit back to page 0
-                    page_pointer1 = 5; // Default to kHz Frequency
-                    page_pointer2 = 5; // Default to AF Gain
-                    Refresh_page0();   // display page 0
-                }
-                encoder1_count = 0;
-                encoder1_PBcount = 0;
+                current_page = 1; // Switch to page 1
+                page_pointer1 = 0x8000; // Default to item 0 and pointer has focus
+                Refresh_page1(); // display page 1
             }
+            else
+            {
+                current_page = 0; // exit back to page 0
+                page_pointer1 = 5; // Default to kHz Frequency
+                page_pointer2 = 5; // Default to AF Gain
+                Refresh_page0(); // display page 0
+            }
+            encoder1Data.buttonCount = 0;
+        }
+        else
+        {
+            encoder1Data.buttonState = QUICK;
         }
     }
+
 }
 
+int16 Encoder1Count(void)
+{
+    return encoder1Data.count;
+}
 
+void Encoder1CountZero(void)
+{
+    encoder1Data.count = 0;
+}
+
+eButtonState Encoder1ButtonEvent(void)
+{
+    return encoder1Data.buttonState;
+}
 /*******************************************************************************
-* Encoder 2 Status updates the encoder rotation count and push button status.
-* The rotary encoder changes 4 states per detent so the last two bits are masked
-* so that items increment once per detent.
-* The encoder and PB counts need to be cleared after use by other functions.
-* The push button count tells how long the button was pressed before released
-* and traps the count on button release. The MSb indicates pressed and released.
-*******************************************************************************/
+ * Encoder 2 Status updates the encoder rotation count and push button status.
+ * The rotary encoder changes 4 states per detent so the last two bits are masked
+ * so that items increment once per detent.
+ * The encoder and PB counts need to be cleared after use by other functions.
+ * The push button count tells how long the button was pressed before released
+ * and traps the count on button release. The MSb indicates pressed and released.
+ *******************************************************************************/
 void Encoder2_Update()
 {
     int16 encoder2_new;
 
+    encoder2Data.oldButtonState = encoder2Data.buttonState;
+
     encoder2_new = (POS2CNTL & 0xFFFC); // Read encoder1 position zero last two bits
-    if (encoder2_new != encoder2_old)   // if position has changed
+    if (encoder2_new != encoder2Data.oldCount) // if position has changed
     {
-        encoder2_count += ((encoder2_new - encoder2_old) >>2); // Update new count
-        encoder2_old = encoder2_new;                           // Store last read
+        encoder2Data.count += ((encoder2_new - encoder2Data.oldCount) >> 2); // Update new count
+        encoder2Data.oldCount = encoder2_new; // Store last read
     }
 
-    if (encoder2_PBcount < 0x8000)      // If button release not yet detected (MSB set)
+    if (!QEI2IOCbits.INDEX) //Don't care about state, just count
     {
-        if (!QEI2IOCbits.INDEX)         // if button is still being pressed
+        encoder2Data.buttonCount++;
+    }
+    else //Button not depressed so reset count
+    {
+        encoder2Data.buttonCount = 0;
+        encoder2Data.buttonState = NONE;
+    }
+
+    if (encoder2Data.buttonCount)
+    {
+        if (encoder2Data.buttonCount > BUTTON_TICKS) // If button was held for defined duration
         {
-            encoder2_PBcount ++;        // increment the PBcounter
-        }
-        else if (encoder2_PBcount)      // If button released and count is non-zero
-        {
-            encoder2_PBcount |= 0x8000; //Set MSB indicating button released and non-zero count trapped
-            if (encoder2_PBcount > BUTTON_TICKS)  // If button was held for 2 seconds
+            encoder2Data.buttonState = EXTENDED;
+            if (current_page == 0) // If we are on page 0
             {
-                if (current_page == 0)  // If we are on page 0
-                {
-                    current_page = 2;   // Switch to page 2
-                    page_pointer1 = 0x8000;  // Default to item 0 and pointer has focus
-                    Refresh_page2();    // display page 2
-                }
-                else
-                {
-                    current_page = 0;  // exit back to page 0
-                    page_pointer1 = 5; // Default to kHz Frequency
-                    page_pointer2 = 5; // Default to AF Gain
-                    Refresh_page0();   // display page 0
-                }
-                encoder2_count = 0;
-                encoder2_PBcount = 0;
+                current_page = 2; // Switch to page 1
+                page_pointer1 = 0x8000; // Default to item 0 and pointer has focus
+                Refresh_page2(); // display page 1
             }
+            else
+            {
+                current_page = 0; // exit back to page 0
+                page_pointer1 = 5; // Default to kHz Frequency
+                page_pointer2 = 5; // Default to AF Gain
+                Refresh_page0(); // display page 0
+            }
+            encoder2Data.buttonCount = 0;
+        }
+        else
+        {
+            encoder2Data.buttonState = QUICK;
         }
     }
+}
+
+int16 Encoder2Count(void)
+{
+    return encoder2Data.count;
+}
+
+void Encoder2CountZero(void)
+{
+    encoder2Data.count = 0;
+}
+
+eButtonState Encoder2ButtonEvent(void)
+{
+    return encoder2Data.buttonState;
 }
 
 /*******************************************************************************
