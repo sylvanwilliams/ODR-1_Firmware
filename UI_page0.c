@@ -109,35 +109,35 @@ void Page0_pointer1_update()
             break;
             case 0x0001:  // Pointer position 1 freq digit 8
                 radio_freq += (10000000 * encoderCount);
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0002:  // Pointer position 2 freq digit 7
                 radio_freq += (1000000 * encoderCount);
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0003:  // Pointer position 3 freq digit 6
                 radio_freq += (100000 * encoderCount);
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0004:  // Pointer position 4 freq digit 5
                 radio_freq += (10000 * encoderCount);
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0005:  // Pointer position 5 freq digit 4
                 radio_freq += (1000 * encoderCount);
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0006:  // Pointer position 6 freq digit 3
                 radio_freq += (100 * encoderCount);
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0007:  // Pointer position 7 freq digit 2
                 radio_freq += (10 * encoderCount);
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0008:  // Pointer position 8 freq digit 1
                 radio_freq += encoderCount;
-                Display_Frequency();  // Update Frequency Display
+                Change_Freq();  // Update Frequency
             break;
             case 0x0009:  // Pointer position 9 TX offset
                 tx_offset += encoderCount;
