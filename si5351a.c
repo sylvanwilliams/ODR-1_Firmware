@@ -125,20 +125,11 @@ void si5351aSetFrequency(uint32_t frequency)
 	// If you want to output frequencies below 1MHz, you have to use the 
 	// final R division stage
 	setupMultisynth(SI_SYNTH_MS_0, divider, SI_R_DIV_1);
-        setupMultisynth(SI_SYNTH_MS_2, divider, SI_R_DIV_1);    // Set Multisynth 2 the same
-        // set crystal load capacitance to 8pf
-      //I2C2_Byte_Write(SI_XTAL_LD_CAP, 0b10010010);
-        // Turn OFF spread spectrum
-      //I2C2_Byte_Write(SI5351_SSC_PARAM0, 0b00000000);
 
-	// Reset the PLL. This causes a glitch in the output. For small changes to 
-	// the parameters, you don't need to reset the PLL, and there is no glitch
-      //I2C2_Byte_Write(SI_PLL_RESET, 0xA0);
-	// Finally switch on the CLK0 output (0x4F)
-	// and set the MultiSynth0 input to be PLL A
-      //I2C2_Byte_Write(SI_CLK0_CONTROL, 0b01001100 | SI_CLK_SRC_PLL_A);
-        // Turn on CLK2 and invert output
-      //I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011100 | SI_CLK_SRC_PLL_A);
+        // Method 1 of generating a differential clock output is to use
+        // multisynth 2 to drive output two and share PLL A.
+        //setupMultisynth(SI_SYNTH_MS_2, divider, SI_R_DIV_1);    // Set Multisynth 2 the same
+
 }
 
 /******************************************************************************
@@ -162,13 +153,24 @@ void Init_si5351a(void)
     I2C2_Byte_Write(SI_XTAL_LD_CAP, 0b10010010);
     // Turn OFF spread spectrum
     I2C2_Byte_Write(SI5351_SSC_PARAM0, 0b00000000);
+
+    // Method 2 Allow fanout of Multisynth0 to drive output 0 and 2
+    I2C2_Byte_Write(187, 0b00010000);
+
     // Reset the PLL. This causes a glitch in the output. For small changes to
     // the parameters, you don't need to reset the PLL, and there is no glitch
     I2C2_Byte_Write(SI_PLL_RESET, 0xA0);
     // Finally switch on the CLK0 output (0x4F)
     // and set the MultiSynth0 input to be PLL A
-    I2C2_Byte_Write(SI_CLK0_CONTROL, 0b01001100 | SI_CLK_SRC_PLL_A);
-    // Turn on CLK2 and invert output
-    I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011100 | SI_CLK_SRC_PLL_A);
+    I2C2_Byte_Write(SI_CLK0_CONTROL, 0b01001100);
+    // Turn off clock 1
+    //I2C2_Byte_Write(SI_CLK1_CONTROL, 0b11011000);
+    
+    // Method 1 Turn on CLK2 and invert output use multi synth 2
+    // I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011100);
+
+    // Method 2 Turn on CLK2 and invert output share multi synth 0
+    // This method should have better performance than method 1
+    I2C2_Byte_Write(SI_CLK2_CONTROL, 0b01011000);
 
 }
