@@ -70,20 +70,26 @@ void Init_Audio_Codec(void)
     delayms(2);    // Delay for 2mS before first write
 
     Codec_Write_SPI (0, 0);           // Select page 0
-    Codec_Write_SPI (27, 0b11001101); // Audio Interface Setting Register 1
-    Codec_Write_SPI (4,  0b00000011); // Clock Setting Register 1, Multiplexers
-    Codec_Write_SPI (6,  0b00001000); // Clock Setting Register 3, PLL J Values
-    Codec_Write_SPI (7,  0b00000111); // Clock Setting Register 4, PLL D Values (MSB)
-    Codec_Write_SPI (8,  0b10000000); // Clock Setting Register 5, PLL D Values (LSB)
+    Codec_Write_SPI (27, 0b01111101); // Audio Interface Set 1 WCLK & BCLK out, 32 bit DSP
+    Codec_Write_SPI (28, 0b00000000); // Audio Interface Set 2 Data Offset = 0 BCLKs default
+    Codec_Write_SPI (29, 0b00000000); // Audio Interface Set 3 default
+	
+	// PLL clock of 98.304 MHz derrived from a 12MHz MCLK input
+    Codec_Write_SPI (4,  0b00000011); // Clock Setting Register 1, PLL Mux PLL_CLKIN = MCLK = 12MHZ 
+    Codec_Write_SPI (6,  0b00001000); // Clock Setting Register 3, PLL J Values J=8
+    Codec_Write_SPI (7,  0b00000111); // Clock Setting Register 4, PLL D Values (MSB) D=0.1920
+    Codec_Write_SPI (8,  0b10000000); // Clock Setting Register 5, PLL D Values (LSB) D=0.1920
     Codec_Write_SPI (30, 0b10110000); // Clock Setting Register 12, BCLK N Divider
-    Codec_Write_SPI (5,  0b10010001); // Clock Setting Register 2, PLL P and R Values
-    Codec_Write_SPI (13, 0b00000011); // DAC OSR Setting Register 1, MSB
-    Codec_Write_SPI (14, 0b00000000); // DAC OSR Setting Register 2, LSB
-    Codec_Write_SPI (20, 0b10000000); // ADC Oversampling (AOSR)
-    Codec_Write_SPI (11, 0b10001000); // Clock Setting Register 6, NDAC
-    Codec_Write_SPI (12, 0b10000010); // Clock Setting Register 7, MDAC
-    Codec_Write_SPI (18, 0b10001000); // Clock Setting Register 8, NADC
-    Codec_Write_SPI (19, 0b10001100); // Clock Setting Register 9, MADC
+    Codec_Write_SPI (5,  0b10010001); // Clock Setting Register 2, PLL P and R Values P=1, R=1
+	
+	// DAC and ADC Clocks set to 8kHz fs
+    Codec_Write_SPI (13, 0b00000011); // DAC OSR Setting Register 1, MSB In=6.144MHz, Out=8kHz 
+    Codec_Write_SPI (14, 0b00000000); // DAC OSR Setting Register 2, LSB Out=8kHz
+    Codec_Write_SPI (20, 0b10000000); // ADC Oversampling (AOSR) In=1.024MHz Out=8kHz
+    Codec_Write_SPI (11, 0b10001000); // Clock Setting Register 6, NDAC In=98.304MHz, Out=12.288MHz
+    Codec_Write_SPI (12, 0b10000010); // Clock Setting Register 7, MDAC In=12.288MHz, Out=6.144MHz
+    Codec_Write_SPI (18, 0b10001000); // Clock Setting Register 8, NADC In=98.304MHz, Out=12.288MHz
+    Codec_Write_SPI (19, 0b10001100); // Clock Setting Register 9, MADC In=12.288MHz, Out=1.024MHz
 
     Codec_Write_SPI (64, 0b00000010); // DAC Channel Setup Register 2
     Codec_Write_SPI (65, 0b00000000); // Left DAC Channel Digital Volume
