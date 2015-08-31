@@ -443,22 +443,24 @@ void Init_QEI_2()
 
 /*******************************************************************************
 * Initialize Pulse Width Modulators
-* Period set to ~250 Hz
+* Period set to ~50 kHz which is above 48kHz sound card sample rate
 * Currently only one of the 6 PWMs in use
 * PWM1 - LCD Backlight control
 *******************************************************************************/
 void Init_PWM()
 {
     // PTPER = Fosc /(desired period * PTCON2)
-    // PTPER = 120MHz /(250 * 16) = 30000
-    PTCON2 = 0x0004;                  // Prescaler 4 = div by 16
-    PTPER = 30000;                    // Set PWM Period on Primary Time Base
+    // PTPER = 120MHz /(50kHz * 2) = 1200
+    PTCON2 = 0x0001;                  // Prescaler 1=/2, 2=/4, 3=/8, 4=/16, 5=/32
+    PTPER = 1200;                     // 50kHz PWM Period on Primary Time Base
     PHASE1 = 0;                       // PWM1 phase shift
-    PHASE2 = 100;                     // PWM2 phase shift
-    PHASE3 = 200;                     // PWM3 phase shift
+    PHASE2 = 120;                     // PWM2 phase shift
+    PHASE3 = 240;                     // PWM3 phase shift
     // PDCn = (desired duty cycle * PTPER)
-    PDC3 = 15000;                     // Default screen brightness to 50% Duty Cycle
-    PDC1 = PDC2 = 15000;              // Set to 50% duty, currently not used
+    // PDC3 = 15000;                     // Default screen brightness to 50% Duty Cycle
+    // PDC1 = PDC2 = 15000;              // Set to 50% duty, currently not used
+    PDC3 = (PTPER / 2);               // Default screen brightness to 50% Duty Cycle
+    PDC1 = PDC2 = (PTPER / 2);        // Set to 50% duty, currently not used
     DTR1 = DTR2 = DTR3 = 5;           // Set Dead Time Values
     ALTDTR1 = ALTDTR2 = ALTDTR3 = 5;  // Set Alternate Dead Time Values
     IOCON3 = 0xA000;                  // PWM3H pin 3 used for LCD backlight output
