@@ -613,7 +613,6 @@ void Display_UTC_24HR()
 *******************************************************************************/
 void Change_Freq()
 {
-#ifndef SNAP_PIC
     // Don't let radio go out of frequency bounds
     if (radio_freq > radio_freq_max)
     {
@@ -683,6 +682,6 @@ void Change_Freq()
         BPF_CS0 = 1;
         BPF_CS1 = 0;
     }
-#endif
+    
     Display_Frequency();  // Update Frequency Display
 }

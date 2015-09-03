@@ -17,11 +17,6 @@
 #ifndef __DSPIC33E_HARDWARE_H
 #define __DSPIC33E_HARDWARE_H
 
-// Compile for SNAPPIC evaluation board
-//#ifndef SNAP_PIC
-//#define SNAP_PIC
-//#endif
-
 
 // all sort of CPU clock dependent constants
 // define FCY, system cycle rate, in the 33F chip Fosc / 2
@@ -68,11 +63,8 @@
 #define CODEC_CS  LATGbits.LATG1     // Audio Codec Chip Select RG1
 
 // Configure LCD Data / Command Pin
-#ifdef SNAP_PIC  // Configure for development board
-    #define	LCD_DC     LATEbits.LATE4    //LCD Data/Command on RE4(RP84) temporary
-#else  // Configure for ODR-1 Hardware
-    #define	LCD_DC     LATGbits.LATG15    //LCD Data/Command on RG15(RP127)
-#endif
+
+#define	LCD_DC     LATGbits.LATG15    //LCD Data/Command on RG15(RP127)
 
 //#define	Debug_0    LATDbits.LATD0     //Debug_0 on RD0(RP64)
 //#define	Button_1  PORTGbits.RG15      //Push Button on RG15

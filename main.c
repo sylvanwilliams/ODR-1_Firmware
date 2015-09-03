@@ -57,10 +57,8 @@ int main(void)
     Color_pallet_update();  // Set up the color pallet
     Refresh_page0();        // Refresh main screen
     
-#ifndef SNAP_PIC
     Init_Audio_Codec();      // Initialize the audio Codec
-#endif
-    
+
     //Configure Timer1 for interrupt operation
     Init_Timer1();
 

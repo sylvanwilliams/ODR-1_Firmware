@@ -212,15 +212,9 @@ void Init_SPI4()
 void Init_P33EP512MU810_osc()
 {
 // Configure Oscillator to operate the device at 120Mhz
-#ifdef SNAP_PIC
-// Fosc= Fin*M/(N1*N2), Fcy=Fosc/2
-// Fosc= 8M*60/(2*2)=120Mhz for 8M input clock PLLFBD=58
-   PLLFBD             = 58;         // PLL Feedback Divisor bits (M = PLLFBD + 2)
-#else
    // Fosc= Fin*M/(N1*N2), Fcy=Fosc/2
    // Fosc= 12M*40/(2*2)=120Mhz for 8M input clock PLLFBD=58
    PLLFBD             = 38;         // PLL Feedback Divisor bits (M = PLLFBD + 2)
-#endif
    
    CLKDIVbits.ROI     = 0;          // Recover on Interrupt, no effect on DOZEN
    CLKDIVbits.DOZE    = 0b000;      // Fcy divided by 1
@@ -300,13 +294,8 @@ void Init_P33EP512MU810_pins()
     PORTF = 0x0000;
 
     // Configure LCD Data / Command/data Pin
-#ifdef SNAP_PIC  // Configure for development board
-    TRISG = 0x8280;    // PortG 1000 0010 1000 0000 (In=RG15,RG7,RG9)
-    PORTG = 0x0000;
-#else  // Configure for ODR-1 Hardware
     TRISG = 0x0280;    // PortG 0000 0010 1000 0000 (In=RG7,RG9)
     PORTG = 0x0000;
-#endif
 
     ANSELA = 0x0000;   //Configure analog inputs
     ANSELB = 0x0000;

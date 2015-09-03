@@ -49,11 +49,7 @@ extern "C" {
 #pragma config ALTI2C2 = OFF            // Alternate I2C pins for I2C2 (SDA2/SCK2 pins are selected as the I/O pins for I2C2)
 
 // FICD
-#ifdef SNAP_PIC
-#pragma config ICS = PGD3               // ICD Communication Channel Select bits (Communicate on PGEC3 and PGED3)
-#else
-#pragma config_ICS = PGD1               // ICD Communication Channel Select bits (Communicate on PGEC1 and PGED1)
-#endif
+#pragma config ICS = PGD1               // ICD Communication Channel Select bits (Communicate on PGEC1 and PGED1)
 
 #pragma config RSTPRI = PF              // Reset Target Vector Select bit (Device will obtain reset instruction from Primary flash)
 #pragma config JTAGEN = OFF             // JTAG Enable bit (JTAG is disabled)
