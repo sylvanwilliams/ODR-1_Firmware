@@ -45,7 +45,7 @@ int16 tx_offset         = 0;          // Transmit Offset
 int16 mic_gain          = 10;
 int16 key_speed         = 15;
 int16 filter_bw         = 500;
-int16 rf_gain           = 0;
+int16 rf_gain           = 2;
 int16 af_gain           = 15;
 
 /*******************************************************************************
@@ -252,14 +252,15 @@ void Page0_pointer2_update()
             break;
         case 0x0004: // Pointer position 4 RF Gain
             rf_gain += encoderCount;
-            if (rf_gain > 30) // if above highest possible count
+            if (rf_gain > 3)        // if above highest possible count
             {
-                rf_gain = 30; // stop at max
+                rf_gain = 3;        // set to max count
             }
-            else if (rf_gain < -30) // if below lowest possible count
+            else if (rf_gain < 0)   // if below lowest possible count
             {
-                rf_gain = -30; // stop at minimum
+                rf_gain = 0;        // set to lowest count
             }
+            Set_RFGain();     // Set the RF gain on the Osc & Mix Board
             Display_RFGain(); // Update RF Gain Display
             break;
         case 0x0005: // Pointer position 5 AF Gain
@@ -272,9 +273,8 @@ void Page0_pointer2_update()
             {
                 af_gain = -6; // stop at minimum
             }
-
-            Display_AFGain(); // Update AF Gain Display
             Codec_HP_Gain ((int8)(af_gain)); // Change the Headphone amp gain
+            Display_AFGain(); // Update AF Gain Display
             break;
         }
     }
@@ -546,25 +546,27 @@ void Display_FilterBW()
 *******************************************************************************/
 void Display_RFGain()
 {
-    int16 temp;
-    if ((page_pointer2 & 0x00FF)== 4)             // If RF Gain has navigation focus
+    if ((page_pointer2 & 0x00FF)== 4)     // If RF Gain has navigation focus
     {
         BACK_COLOR = char_hglt_color;
     }
     POINT_COLOR = char_norm_color;
-
-    if (rf_gain < 0)                            // If the rf gain is negetive
+    switch(rf_gain) // Action based on gain selected
     {
-        temp = ((rf_gain ^ 0xFFFF)+ 0x0001);    // Twos Complement to negate sign
-        LCD_16x24_Char(125,210,'-',0);          // Display negetive symbol, mode=0
-        LCD_16nz_Num(141,210,temp,2);           // Display two numbers
-        LCD_16x24_String(173,210,"db");         // Display RF Gain db
-    }
-    else
-    {
-        LCD_16x24_Char(125,210,'+',0);          // Display plus symbol, mode=0
-        LCD_16nz_Num(141,210,rf_gain,2);        // Display two numbers
-        LCD_16x24_String(173,210,"db");         // Display RF Gain db
+        case 0:  // Set -24dB RF Gain
+            LCD_16x24_String(120,210,"-24dB");
+        break;
+        case 1:  // Set -6dB RF Gain
+            LCD_16x24_String(120,210,"- 6dB");
+        break;
+        case 2:  // Set 0dB RF Gain
+            LCD_16x24_String(120,210,"  0dB");
+        break;
+        case 3:  // Set +15dB RF Gain
+            LCD_16x24_String(120,210,"+15dB");
+        break;
+        default: // Default 0dB RF Gain
+            LCD_16x24_String(120,210,"  0dB");
     }
     BACK_COLOR = field_color;                   // Restore the background color
 }
@@ -701,4 +703,36 @@ void Change_Freq()
     }
     
     Display_Frequency();  // Update Frequency Display
+}
+
+/*******************************************************************************
+* Sets the RF Gain on the Mixer & Oscillator Board
+*
+*
+*
+*******************************************************************************/
+void Set_RFGain()
+{
+    switch(rf_gain) // Action based on gain selected
+    {
+        case 0:  // Select -24dB RF Gain
+            ATT_S0  = 0;    // RF Attenuator Select 0
+            ATT_S1  = 1;    // RF Attenuator Select 1
+        break;
+        case 1:  // Select -6dB RF Gain
+            ATT_S0  = 1;    // RF Attenuator Select 0
+            ATT_S1  = 0;    // RF Attenuator Select 1
+        break;
+        case 2:  // Select 0dB RF Gain
+            ATT_S0  = 0;    // RF Attenuator Select 0
+            ATT_S1  = 0;    // RF Attenuator Select 1
+        break;
+        case 3:  // Select +15dB RF Gain
+            ATT_S0  = 1;    // RF Attenuator Select 0
+            ATT_S1  = 1;    // RF Attenuator Select 1
+        break;
+        default: // Default 0dB RF Gain
+            ATT_S0  = 0;    // RF Attenuator Select 0
+            ATT_S1  = 0;    // RF Attenuator Select 1
+    }
 }
