@@ -28,6 +28,7 @@
 #include "UI_main.h"
 #include "DSPIC33E_hardware.h"
 #include "si5351a.h"
+#include "TLV320AIC3204.h"
 
 //Arrays
 
@@ -263,15 +264,17 @@ void Page0_pointer2_update()
             break;
         case 0x0005: // Pointer position 5 AF Gain
             af_gain += encoderCount;
-            if (af_gain > 50) // if above highest possible count
+            if (af_gain > 29) // if above highest possible count
             {
-                af_gain = 50; // stop at max
+                af_gain = 29; // stop at max
             }
-            else if (af_gain < 0) // if below lowest possible count
+            else if (af_gain < -6) // if below lowest possible count
             {
-                af_gain = 0; // stop at minimum
+                af_gain = -6; // stop at minimum
             }
+
             Display_AFGain(); // Update AF Gain Display
+            Codec_HP_Gain ((int8)(af_gain)); // Change the Headphone amp gain
             break;
         }
     }
@@ -549,6 +552,7 @@ void Display_RFGain()
         BACK_COLOR = char_hglt_color;
     }
     POINT_COLOR = char_norm_color;
+
     if (rf_gain < 0)                            // If the rf gain is negetive
     {
         temp = ((rf_gain ^ 0xFFFF)+ 0x0001);    // Twos Complement to negate sign
@@ -573,13 +577,26 @@ void Display_RFGain()
 *******************************************************************************/
 void Display_AFGain()
 {
+    int16 temp;
     if ((page_pointer2 & 0x00FF)== 5) // If AF Gain has navigation focus
     {
         BACK_COLOR = char_hglt_color;
     }
     POINT_COLOR = char_norm_color;
-    LCD_16x24_String(240,210,"+");        // Display AF Gain +
-    LCD_16nz_Num(256,210,af_gain,2);      // Display two numbers
+
+    if (af_gain < 0)                          // If the af gain is negetive
+    {
+        temp = ((af_gain ^ 0xFFFF)+ 0x0001);  // Twos Complement to negate sign
+        LCD_16x24_Char(226,210,'-',0);        // Display negetive symbol, mode=0
+        LCD_16nz_Num(242,210,temp,2);         // Display two numbers
+        LCD_16x24_String(274,210,"db");       // Display AF Gain db
+    }
+    else
+    {
+        LCD_16x24_String(226,210,"+");        // Display AF Gain +
+        LCD_16nz_Num(242,210,af_gain,2);      // Display two numbers
+        LCD_16x24_String(274,210,"db");       // Display AF Gain db
+    }
     BACK_COLOR = field_color;             // Restore the background color
 }
 
