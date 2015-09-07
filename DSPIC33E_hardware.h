@@ -186,4 +186,5 @@ void I2C2_Byte_Write(unsigned char, unsigned char);     // write byte, (address,
 //unsigned char I2C2_Byte_Read(unsigned char);		// read (address)
 void I2C2_Byte_Read(unsigned char);		        // read (address)
 void Init_Timer1(void);
+void Init_DCI(void);
 #endif

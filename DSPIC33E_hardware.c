@@ -275,7 +275,7 @@ void Init_REFCLK()
 void Init_P33EP512MU810_pins()
 {
     // Set general I/O
-    TRISA = 0x0081;    // PortA 0000 0000 1000 0001 (In=RA0)
+    TRISA = 0x0081;    // PortA 0000 0000 1000 0001 (In=RA0,RA7)
     PORTA = 0x0000;
 
     TRISB = 0x0000;    // PortB 0000 0000 0000 0000
@@ -294,7 +294,7 @@ void Init_P33EP512MU810_pins()
     PORTF = 0x0000;
 
     // Configure LCD Data / Command/data Pin
-    TRISG = 0x0280;    // PortG 0000 0010 1000 0000 (In=RG7,RG9)
+    TRISG = 0x6280;    // PortG 0110 0010 1000 0000 (In=RG7,RG9,RG13,RG14)
     PORTG = 0x0000;
 
     ANSELA = 0x0000;   //Configure analog inputs
@@ -511,4 +511,42 @@ void Init_Timer1( void )
     TMR1 = 0x0000;
     PR1 = TIMER1_PERIOD;       // Timer1 period register - see macro
     T1CONbits.TON = 1;  // Enable Timer1 and start the counter
+}
+/******************************************************************************
+ * Function:       void Init_DCI( void )
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       
+ *****************************************************************************/
+void Init_DCI(void)
+{
+
+    RSCONbits.RSE1 = 1; /* Enable Receive Time Slot 1 */
+    RSCONbits.RSE0 = 1; /* Enable Receive Time Slot 0 */
+    TSCONbits.TSE1 = 1; /* Enable Transmit Time Slot 1 */
+    TSCONbits.TSE0 = 1; /* Enable Transmit Time Slot 0 */
+    
+    DCICON1bits.COFSM = 0; /* Multichannel Frame Sync mode */
+    DCICON1bits.DJST = 1; /* Data TX/RX is begun in the same clock cycle as frame sync pulse */
+    DCICON1bits.CSCKE = 0; /* Data changes on rising edge sampled on falling edge of CSCK */
+    DCICON1bits.COFSD = 1; /* Frame sync driven by codec*/
+    DCICON1bits.CSCKD = 1; /* Clock is input to DCI from codec */
+    DCICON2bits.BLEN = 1; /* Two data words will be buffered between interrupts */
+    DCICON2bits.COFSG = 1; /* Data frame has 2 words */
+    DCICON2bits.WS = 15; /* Data word size is 16 bits*/
+    DCICON3 = 0; /* BCG value is zero since clock is driven by codec */
+    
+    IPC15bits.DCIIP = 6; /* Enable the interrupts */
+    IFS3bits.DCIIF = 0;
+    IEC3bits.DCIIE = 0;
+    
+    DCICON1bits.DCIEN = 1; /* Enable the module*/
+    IEC3bits.DCIIE = 1;
 }
