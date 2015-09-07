@@ -48,6 +48,10 @@ int16 filter_bw         = 500;
 int16 rf_gain           = 2;
 int16 af_gain           = 15;
 
+int16 rtc_hrs           = 23;  // Real time clock hours 0-23
+int16 rtc_min           = 59;  // Real time clock minutes 0-59
+int16 rtc_sec           = 00;  // Real time clock seconds 0-59
+
 /*******************************************************************************
 * Navigation pointer #1 is associated with the upper encoder and is used to
 * highlight the item being pointed to. If the nav pointer has the focus, the
@@ -98,13 +102,13 @@ void Page0_pointer1_update()
         {
             case 0x0000:  // Pointer position 0 Mode
                 rxtx_mode += encoderCount;
-                if (rxtx_mode > 4)        // if above highest possible count
+                if (rxtx_mode > 5)        // if above highest possible count
                 {
                     rxtx_mode = 0;        // roll over
                 }
                 else if (rxtx_mode < 0)   // if below lowest possible count
                 {
-                    rxtx_mode = 3;        // roll over
+                    rxtx_mode = 4;        // roll over
                 }
                 Display_RXTX_Mode();      // Display new mode selected
             break;
@@ -173,6 +177,8 @@ void Page0_pointer2_update()
 {
     int16 encoderCount = Encoder2Count();
     static eButtonState oldButtonState = NO_PRESS;
+
+    Read_RTC_Time(); // Get the current time from the RTC module
 
     if ((NO_PRESS == oldButtonState) && (PRESS == Encoder2ButtonEvent())) //If button has been pressed and released
     {
@@ -281,6 +287,7 @@ void Page0_pointer2_update()
 
     oldButtonState = Encoder2ButtonEvent();
     Encoder2CountZero();
+    Display_UTC_24HR(); // Update time display
 }
 
 
@@ -389,16 +396,19 @@ void Display_RXTX_Mode()
     switch(rxtx_mode) // Action based on mode selected
     {
         case 0:  // Mode 0 CW
-                LCD_16x24_String(10,66," CW");      // Display Mode CW
+            LCD_16x24_String(10,66," CW");      // Display Mode CW
         break;
         case 1:  // Mode 1 USB
-                LCD_16x24_String(10,66,"USB");      // Display Mode USB
+            LCD_16x24_String(10,66,"USB");      // Display Mode USB
         break;
         case 2:  // Mode 2 LSB
-                LCD_16x24_String(10,66,"LSB");      // Display Mode LSB
+            LCD_16x24_String(10,66,"LSB");      // Display Mode LSB
         break;
-        case 3:  // Mode 2 LSB
-                LCD_16x24_String(10,66," AM");      // Display Mode AM
+        case 3:  // Mode 3 AM
+            LCD_16x24_String(10,66," AM");      // Display Mode AM
+        break;
+        case 4:  // Mode 4 PT Pass Through
+            LCD_16x24_String(10,66," PT");      // Display Mode PT
         break;
     }
     BACK_COLOR = field_color; // Restore the background color
@@ -602,26 +612,41 @@ void Display_AFGain()
     BACK_COLOR = field_color;             // Restore the background color
 }
 
-
 /*******************************************************************************
-* Display Universal Time 24Hr format
-* Hours and Minutes display
+* Read the Real Time Clock Module
+* Store the result in Hours, Minutes, and Seconds variables
 *******************************************************************************/
-void Display_UTC_24HR()
+void Read_RTC_Time()
 {
     uint16 temp;
 
     RCFGCALbits.RTCPTR = 0b01;               // Set RTCC Register Pointer to Days and Hours
-    temp = RTCVAL;                           // Grab data from RTC register
-    LCD_16nz_Num(33,162,(temp & 0x000F),1);  // Display HRONE
-    temp = temp >> 4;                        // Right shift 4 bits
-    LCD_16nz_Num(17,162,(temp & 0x000F),1);  // Display HRTEN
-    LCD_16x24_String(49,162,":");
-    temp = RTCVAL >> 8;                      // Read minutes and seconds, shift to minutes
-    LCD_16nz_Num(81,162,(temp & 0x000F),1);  // Display MINONE
-    temp = temp >> 4;                        // Right shift 4 bits
-    LCD_16nz_Num(65,162,(temp),1);           // Display MINTEN
+    temp = RTCVAL;                           // Read Days and Hours
+    rtc_hrs = (temp & 0x0030);               // mask off the HRTEN digit
+    rtc_hrs = ((rtc_hrs >>4) * 10);          // Create decimal of 00, 10 or 20
+    rtc_hrs = (rtc_hrs + (temp & 0x000F));   // Add in the HRONE value
 
+    temp = RTCVAL;                           // Read minutes and seconds
+    rtc_sec = (temp & 0x0070);               // mask off the SECTEN digit
+    rtc_sec = ((rtc_sec >>4) * 10);          // Create decimal of 00,10...50
+    rtc_sec = (rtc_sec + (temp & 0x000F));   // Add in the SECONE value
+
+    temp = temp >>8;                         // Shift minutes into position
+    rtc_min = (temp & 0x0070);               // mask off the MINTEN digit
+    rtc_min = ((rtc_min >>4) * 10);          // Create decimal of 00,10...50
+    rtc_min = (rtc_min + (temp & 0x000F));   // Add in the MINONE value
+
+}
+
+/*******************************************************************************
+* Display Universal Time 24Hr format
+* Hours Minutes and seconds
+*******************************************************************************/
+void Display_UTC_24HR()
+{
+    LCD_16wz_Num(12,162,rtc_hrs,2);     // Display hours   16x24 font
+    LCD_16wz_Num(44,162,rtc_min,2);     // Display minutes 16x24 font
+    LCD_16wz8_Num(80,170,rtc_sec,2);    // Display seconds 8x16 font
 }
 
 /*******************************************************************************

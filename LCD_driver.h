@@ -49,22 +49,24 @@ void Lcd_Init(void);
 void LCD_Clear(uint16 Color);
 
 
-void LCD_DrawPoint(uint16 x,uint16 y);                                //Draw points
-void LCD_DrawPoint_big(uint16 x,uint16 y);                            //Draw a big point
-uint16  LCD_ReadPoint(uint16 x,uint16 y);                                //Reading point
-void Draw_Circle(uint16 x0,uint16 y0,uint8 r);                           //Draw Circle
-void LCD_DrawLine(uint16 x1, uint16 y1, uint16 x2, uint16 y2);              //Draw Line
-void LCD_DrawRectangle(uint16 x1, uint16 y1, uint16 x2, uint16 y2);		//Draw Rectangle
-void LCD_Fill(uint16 x1,uint16 y1,uint16 x2,uint16 y2,uint16 color);           //Fill Screen With Color
-void LCD_8x16_Char(uint16 x,uint16 y,uint8 num,uint8 mode);                 //Display a character
-void LCD_16nz_Num(uint16 x,uint16 y,uint16 num,uint8 len);                  //Display 16 bit number no leading zeros
-void LCD_16wz_Num(uint16 x,uint16 y,uint16 num,uint8 len);                  //Display 16 bit number with leading zeros
-void LCD_32nz_Num(uint16 x,uint16 y,uint32 num,uint8 len);                  //Display 32 bit number no leading zeros
-void LCD_8x16_String(uint16 x,uint16 y,char *p);                      //Display a string 8x16 font
-void LCD_16x24_String(uint16 x,uint16 y,char *p);                     //Display a string 16x24 font
-void LCD_16x24_Char(uint16 x,uint16 y,uint8 num,uint8 mode);
-void NumToCharArray(uint32 num);                                   // Convert 32bit number to character array
-void LCD_DrawIcon(uint16 x,uint16 y);                                 // Draw a 40x40 Icon with 565 color
+void LCD_DrawPoint(uint16 x,uint16 y);                                  // Draw points
+void LCD_DrawPoint_big(uint16 x,uint16 y);                              // Draw a big point
+uint16  LCD_ReadPoint(uint16 x,uint16 y);                               // Reading point
+void Draw_Circle(uint16 x0,uint16 y0,uint8 r);                          // Draw Circle
+void LCD_DrawLine(uint16 x1, uint16 y1, uint16 x2, uint16 y2);          // Draw Line
+void LCD_DrawRectangle(uint16 x1, uint16 y1, uint16 x2, uint16 y2);     // Draw Rectangle
+void LCD_Fill(uint16 x1,uint16 y1,uint16 x2,uint16 y2,uint16 color);    // Fill Screen With Color
+void LCD_8x16_Char(uint16 x,uint16 y,uint8 num,uint8 mode);             // Display a small character
+void LCD_16nz_Num(uint16 x,uint16 y,uint16 num,uint8 len);              // Display 16x24 16 bit number no leading zeros
+void LCD_16nz8_Num(uint16 x,uint16 y,uint16 num,uint8 len);             // Display 8x16 16 bit number no leading zeros
+void LCD_16wz_Num(uint16 x,uint16 y,uint16 num,uint8 len);              // Display 16x24 16 bit number with leading zeros
+void LCD_16wz8_Num(uint16 x,uint16 y,uint16 num,uint8 len);             // Display 8x16 16 bit number with leading zeros
+void LCD_32nz_Num(uint16 x,uint16 y,uint32 num,uint8 len);              // Display 32 bit number no leading zeros
+void LCD_8x16_String(uint16 x,uint16 y,char *p);                        // Display a string 8x16 font
+void LCD_16x24_String(uint16 x,uint16 y,char *p);                       // Display a string 16x24 font
+void LCD_16x24_Char(uint16 x,uint16 y,uint8 num,uint8 mode);            // Display a large character
+void NumToCharArray(uint32 num);                                        // Convert 32bit number to character array
+void LCD_DrawIcon(uint16 x,uint16 y);                                   // Draw a 40x40 Icon with 565 color
 
 
 //Pen color

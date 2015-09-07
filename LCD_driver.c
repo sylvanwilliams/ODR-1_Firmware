@@ -525,7 +525,7 @@ uint32 mypow(uint8 m,uint8 n)
 }
 
 /*******************************************************************************
-* Display 16 bit number with no leading zeros
+* Display 16 bit number with no leading zeros using 16x24 font
 * x,y :Starting point coordinates
 * len :Number of digits to show
 * num:Value (0 to 65535);
@@ -541,19 +541,43 @@ void LCD_16nz_Num(uint16 x,uint16 y,uint16 num,uint8 len)
       {
          if(temp==0)
          {
-            // LCD_8x16_Char(x+8*t,y,' ',0);    // 8 pixle wide font
             LCD_16x24_Char(x+16*t,y,' ',0);     // 16 pixle wide font
             continue;  // Force loop to next iteration
          }
          else enshow=1;
       }
-      //LCD_8x16_Char(x+8*t,y,temp+48,0);    // 8 pixle wide font
       LCD_16x24_Char(x+16*t,y,temp+48,0);    // 16 pixle wide font
    }
 }
 
 /*******************************************************************************
-* Display 16 bit number with leading zeros
+* Display 16 bit number with no leading zeros using 8x16 font
+* x,y :Starting point coordinates
+* len :Number of digits to show
+* num:Value (0 to 65535);
+*******************************************************************************/
+void LCD_16nz8_Num(uint16 x,uint16 y,uint16 num,uint8 len)
+{
+   uint8 t,temp;
+   uint8 enshow=0;            // Leading zero suppression flag
+   for(t=0;t<len;t++)      // One digit at a time till display length is hit
+   {
+      temp=(num/mypow(10,len-t-1))%10;
+      if(enshow==0&&t<(len-1))
+      {
+         if(temp==0)
+         {
+            LCD_8x16_Char(x+8*t,y,' ',0);    // 8 pixle wide font
+            continue;  // Force loop to next iteration
+         }
+         else enshow=1;
+      }
+      LCD_8x16_Char(x+8*t,y,temp+48,0);    // 8 pixle wide font
+   }
+}
+
+/*******************************************************************************
+* Display 16 bit number with leading zeros using 16x24 font
 * x,y:Starting point coordinates
 * num:Value (0 to 65535)
 *******************************************************************************/
@@ -563,8 +587,22 @@ void LCD_16wz_Num(uint16 x,uint16 y,uint16 num,uint8 len)
    for(t=0;t<len;t++)       // One digit at a time till display length is hit
    {
       temp=(num/mypow(10,len-t-1))%10;
-      // LCD_8x16_Char(x+8*t,y,temp+'0',0);
       LCD_16x24_Char(x+16*t,y,temp+'0',0);
+   }
+}
+
+/*******************************************************************************
+* Display 16 bit number with leading zeros using 8x16 font
+* x,y:Starting point coordinates
+* num:Value (0 to 65535)
+*******************************************************************************/
+void LCD_16wz8_Num(uint16 x,uint16 y,uint16 num,uint8 len)
+{
+   uint8 t,temp;
+   for(t=0;t<len;t++)       // One digit at a time till display length is hit
+   {
+      temp=(num/mypow(10,len-t-1))%10;
+      LCD_8x16_Char(x+8*t,y,temp+'0',0);
    }
 }
 

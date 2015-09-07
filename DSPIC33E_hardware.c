@@ -475,15 +475,14 @@ void Init_RTCC()
     ALCFGRPTbits.ALRMEN = 0;  // Disable the alarms
     RCFGCALbits.RTCOE = 1;    // Enable the RTCC output pin
     PADCFG1bits.RTSECSEL = 1; // Output the 1Hz signal on the RTCC pin
-    //Default the date/time to 5/3/2014, 12:30
+    //Default the date/time to 5/3/2014, 29:59
     RCFGCALbits.RTCPTR = 3;   // Start with the year and work down
     RTCVAL = 0x14;            // Year
     RTCVAL = 0x0503;          // month and day
-    RTCVAL = 0x0112;          // Weekday and hour
-    RTCVAL = 0x3000;          // minute and second
+    RTCVAL = 0x0123;          // WDAY<10:8> HRTEN<5:4> HRONE<3:0>
+    RTCVAL = 0x5900;          // MINTEN<14:12> MINONE<11:8> SECTEN<6:4> SECONE<3:0>
     RCFGCALbits.RTCEN = 1;    // Enable the RTC
     RCFGCALbits.RTCWREN = 0;  // Stop future writes to the RTC control register
-
 }
 
 /******************************************************************************

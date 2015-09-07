@@ -117,7 +117,7 @@ void Service_Interface(void)
     {
         Page0_pointer1_update(); // Update upper main screen data
         Page0_pointer2_update(); // Update lower main screen data
-        Display_UTC_24HR(); // Update time display
+        // Display_UTC_24HR(); // Update time display
     }
     else if (current_page == 1)
     {
