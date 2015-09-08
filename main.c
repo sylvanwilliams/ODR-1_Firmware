@@ -24,6 +24,8 @@
 void Service_Interface(void);
 void Init_Mixer_Board();
 
+uint8 timer1_flag = 0;     // Timer 1 flag used to say when to read encoders
+
 int main(void)
 {
 
@@ -61,6 +63,12 @@ int main(void)
     while(1)  // main, loop forever
     {   
         Service_Interface();
+        if (timer1_flag == 1)    // Its time to update the encoders
+        {
+            Encoder1_Update();   // Get the latest encoder status
+            Encoder2_Update();   // Get the latest encoder status
+            timer1_flag = 0;     // Reset the flag
+        }
     }
 
 }
@@ -84,9 +92,10 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void)
     T1CONbits.TON = 0;
 
     PERIODIC = ~PERIODIC;
-    Encoder1_Update(); // Get the latest encoder status
-    Encoder2_Update(); // Get the latest encoder status
-
+    //Encoder1_Update(); // Get the latest encoder status
+    //Encoder2_Update(); // Get the latest encoder status
+    timer1_flag = 1;     // Set the encoder flag
+	
     TMR1 = 0;
     T1CONbits.TON = 1;
 

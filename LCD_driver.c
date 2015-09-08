@@ -17,17 +17,13 @@
 uint16 BACK_COLOR;    // Background color
 uint16 POINT_COLOR;   // Pen color
 uint8 num32_char[10] = {0,0,0,0,0,0,0,0,0,0}; // 32bit number to character array:
-static uint8 fifoLocked = UNLOCKED;
 
 //Function prototypes (private)
 static void LCD_Write_Bus(short command);
-static inline uint8 GetFIFOLock(void) {return fifoLocked;}
-static inline void SetFIFOLock(uint8 state) {fifoLocked = state;}
 static void LCD_FrameAddr(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2);
 static void LCD_WR_DATA8(char da);
 static void LCD_WR_DATA(int da);
 static void LCD_WR_REG(char da);
-static void WaitForFIFOUnLock(uint8 requestedMode);
 
 /*******************************************************************************
 * 1mS Delay
@@ -52,50 +48,13 @@ void delayms(uint16 count)
 *******************************************************************************/
 void LCD_Write_Bus(short command)
 {	
-    short dummy;
-    
+    short temp;
+
     LCD_CS = 0;                     // lower the slave select line
-    
-    while(SPI2STATbits.SPITBF){};   // Wait for empty FIFO location
-    
-    SPI2BUF = command;              // write the data to the FIFO
-    dummy = SPI2BUF;                // Dummy RX read to prevent overflow
-    
-}
-
-/*******************************************************************************
-* FIFO lock routine
-* If the requested data/command mode is different from the current mode
-* lock the FIFO and wait until the SPI FIFO is flushed before returning
-*******************************************************************************/
-void WaitForFIFOUnLock(uint8 requestedMode)
-{
-    
-    if(LCD_DC != requestedMode)         //Check actual DC line against new requested mode
-    {
-        //Acquire lock
-        SetFIFOLock(LOCKED);
-        //Spin until shift register is clean
-        while(!SPI2STATbits.SRMPT){};
-        SetFIFOLock(UNLOCKED);
-    }
-    else
-    {
-        SetFIFOLock(UNLOCKED);
-    }
-    
-}
-
-/*******************************************************************************
-* SPI2 ISR
-* Unused at the moment
-* If needed, set the interrupt condition with SPI2STATbits.SISEL 
-* and set IEC2bits.SPI2IE in DSPIC33E_hardware.c
-*******************************************************************************/
-void __attribute__ ( (interrupt, no_auto_psv) ) _SPI2Interrupt( void )
-{
-    
-    IFS2bits.SPI2IF = 0;                 //Clear interrupt flag
+    temp = SPI2BUF;                 // dummy read of the SPI1BUF register to clear the SPIRBF flag
+    SPI2BUF = command;              // write the data out to the SPI peripheral
+    while (!SPI2STATbits.SPIRBF);   // wait for the data to be sent out
+    LCD_CS = 1;                     // raise the slave select line
 }
 
 /*******************************************************************************
@@ -105,8 +64,7 @@ void __attribute__ ( (interrupt, no_auto_psv) ) _SPI2Interrupt( void )
 *******************************************************************************/
 void LCD_WR_DATA8(char da) //Transmit Data - 8-bit parameter
 {
-    WaitForFIFOUnLock(DATA);
-    LCD_DC = DATA;
+    LCD_DC=1;
     LCD_Write_Bus(da);
 }
 
@@ -117,8 +75,7 @@ void LCD_WR_DATA8(char da) //Transmit Data - 8-bit parameter
 *******************************************************************************/
  void LCD_WR_DATA(int da)
 {
-    WaitForFIFOUnLock(DATA);
-    LCD_DC = DATA;
+    LCD_DC=1;
     LCD_Write_Bus(da>>8);    // Right shift 8 send high order byte
     LCD_Write_Bus(da);       // Send low order byte
 }
@@ -130,8 +87,7 @@ void LCD_WR_DATA8(char da) //Transmit Data - 8-bit parameter
 *******************************************************************************/
 void LCD_WR_REG(char da)	 
 {
-    WaitForFIFOUnLock(COMMAND);
-    LCD_DC = COMMAND;
+    LCD_DC=0;
     LCD_Write_Bus(da);
 }
 
@@ -175,7 +131,6 @@ void LCD_FrameAddr(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int 
 *******************************************************************************/
 void Lcd_Init(void)
 {
-    
     LCD_REST=1;
     delayms(5);	
     LCD_REST=0;
