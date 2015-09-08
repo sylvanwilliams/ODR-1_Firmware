@@ -41,7 +41,6 @@ void Display_RFGain();       // Display RF Gain
 void Display_AFGain();       // Display AFGain
 void Display_UTC_24HR();     // Display Time in 24hour format
 void Change_Freq();          // Change osc and filters based on freq change
-void Set_RFGain();           // Set RF Gain on Oscillator and Mixer Board
 void Read_RTC_Time();        // Get the current time from the RTC module
 void Write_RTC_Hrs(int16 hours);     // Write hours into the RTC module
 void Write_RTC_Min(int16 minutes);   // Write minutes into the RTC module

@@ -15,6 +15,8 @@
 #include "DSPIC33E_hardware.h"
 #include "si5351a.h"
 #include "TLV320AIC3204.h"
+#include "ODR1_Control_1.h"
+#include "ODR1_Control_2.h"
 
 //Arrays
 
@@ -88,13 +90,13 @@ void Page0_pointer1_update()
         {
             case 0x0000:  // Pointer position 0 Mode
                 rxtx_mode += encoderCount;
-                if (rxtx_mode > 5)        // if above highest possible count
+                if (rxtx_mode > 6)        // if above highest possible count
                 {
                     rxtx_mode = 0;        // roll over
                 }
                 else if (rxtx_mode < 0)   // if below lowest possible count
                 {
-                    rxtx_mode = 4;        // roll over
+                    rxtx_mode = 6;        // roll over
                 }
                 Display_RXTX_Mode();      // Display new mode selected
             break;
@@ -260,7 +262,7 @@ void Page0_pointer2_update()
             {
                 rf_gain = 0;        // set to lowest count
             }
-            Set_RFGain();     // Set the RF gain on the Osc & Mix Board
+            Set_RFGain(rf_gain);    // Set the RF gain on the Osc & Mix Board
             Display_RFGain(); // Update RF Gain Display
             break;
         case 0x0007: // Pointer position 5 AF Gain
@@ -402,7 +404,13 @@ void Display_RXTX_Mode()
             LCD_16x24_String(10,66," AM");      // Display Mode AM
         break;
         case 4:  // Mode 4 PT Pass Through
-            LCD_16x24_String(10,66," PT");      // Display Mode PT
+            LCD_16x24_String(10,66,"PT1");      // Display Mode PT
+        break;
+        case 5:  // Mode 4 PT Pass Through
+            LCD_16x24_String(10,66,"PT2");      // Display Mode PT
+        break;
+        case 6:  // Mode 4 PT Pass Through
+            LCD_16x24_String(10,66,"PT3");      // Display Mode PT
         break;
     }
     BACK_COLOR = field_color; // Restore the background color
@@ -607,6 +615,37 @@ void Display_AFGain()
 }
 
 /*******************************************************************************
+* Display Universal Time 24Hr format
+* Hours Minutes and seconds
+*******************************************************************************/
+void Display_UTC_24HR()
+{
+    uint16 temp = (page_pointer2 & 0x00FF); // mask off the pointer count
+    POINT_COLOR = char_norm_color;
+
+    if (temp == 0)                       // If Hours has the focus
+    {
+        BACK_COLOR = char_hglt_color;    // Highlight hours
+    }
+    LCD_16wz_Num(12,162,rtc_hrs,2);      // Display hours   16x24 font
+    BACK_COLOR = field_color;            // Restore the background color
+
+    if (temp == 1)                       // If Minutes has the focus
+    {
+        BACK_COLOR = char_hglt_color;    // Highlight minutes
+    }
+    LCD_16wz_Num(44,162,rtc_min,2);      // Display minutes 16x24 font
+    BACK_COLOR = field_color;            // Restore the background color
+
+    if (temp == 2)                       // If Seconds has the focus
+    {
+        BACK_COLOR = char_hglt_color;    // Highlight seconds
+    }
+    LCD_16wz8_Num(80,170,rtc_sec,2);     // Display seconds 8x16 font
+    BACK_COLOR = field_color;            // Restore the background color
+}
+
+/*******************************************************************************
 * Read the Real Time Clock Module
 * Store the result in Hours, Minutes, and Seconds variables
 *******************************************************************************/
@@ -778,37 +817,6 @@ void Write_RTC_Sec(int16 seconds)
 }
 
 /*******************************************************************************
-* Display Universal Time 24Hr format
-* Hours Minutes and seconds
-*******************************************************************************/
-void Display_UTC_24HR()
-{
-    uint16 temp = (page_pointer2 & 0x00FF); // mask off the pointer count
-    POINT_COLOR = char_norm_color;
-
-    if (temp == 0)                       // If Hours has the focus
-    {
-        BACK_COLOR = char_hglt_color;    // Highlight hours
-    }
-    LCD_16wz_Num(12,162,rtc_hrs,2);      // Display hours   16x24 font
-    BACK_COLOR = field_color;            // Restore the background color
-
-    if (temp == 1)                       // If Minutes has the focus
-    {
-        BACK_COLOR = char_hglt_color;    // Highlight minutes
-    }
-    LCD_16wz_Num(44,162,rtc_min,2);      // Display minutes 16x24 font
-    BACK_COLOR = field_color;            // Restore the background color
-
-    if (temp == 2)                       // If Seconds has the focus
-    {
-        BACK_COLOR = char_hglt_color;    // Highlight seconds
-    }
-    LCD_16wz8_Num(80,170,rtc_sec,2);     // Display seconds 8x16 font
-    BACK_COLOR = field_color;            // Restore the background color
-}
-
-/*******************************************************************************
 * Change the Oscillator Frequency and set the bandpass filters based on frequency
 * Then update the display frequency
 *
@@ -821,102 +829,13 @@ void Change_Freq()
     {
         radio_freq = radio_freq_max;
     }
-    if (radio_freq < radio_freq_min)
+    else if (radio_freq < radio_freq_min)
     {
         radio_freq = radio_freq_min;
     }
 
     // set si5351 freq to 2X desired freq
-    si5351aSetFrequency(2 * radio_freq);
-
-    if (radio_freq < 2690001)                                  // < 2.69MHz
-    {
-        BPF_S0  = 1;
-        BPF_S1  = 1;
-        BPF_CS0 = 0;
-        BPF_CS1 = 1;
-    }
-    else if ((radio_freq > 2690000)&&(radio_freq < 4800001))   // 2.69-4.80MHz
-    {
-        BPF_S0  = 1;
-        BPF_S1  = 1;
-        BPF_CS0 = 1;
-        BPF_CS1 = 0;
-    }
-    else if ((radio_freq > 4800000)&&(radio_freq < 7650001))   // 4.80-7.65MHz
-    {
-        BPF_S0  = 0;
-        BPF_S1  = 1;
-        BPF_CS0 = 0;
-        BPF_CS1 = 1;
-    }
-    else if ((radio_freq > 7650000)&&(radio_freq < 11000001))  // 7.65-11.0MHz
-    {
-        BPF_S0  = 0;
-        BPF_S1  = 1;
-        BPF_CS0 = 1;
-        BPF_CS1 = 0;
-    }
-    else if ((radio_freq > 11000000)&&(radio_freq < 16100001)) // 11.0-16.1MHz
-    {
-        BPF_S0  = 1;
-        BPF_S1  = 0;
-        BPF_CS0 = 0;
-        BPF_CS1 = 1;
-    }
-    else if ((radio_freq > 16100000)&&(radio_freq < 22800001)) // 16.1-22.8MHz
-    {
-        BPF_S0  = 1;
-        BPF_S1  = 0;
-        BPF_CS0 = 1;
-        BPF_CS1 = 0;
-    }
-    else if ((radio_freq > 22800000)&&(radio_freq < 31600001)) // 22.8-31.6MHz
-    {
-        BPF_S0  = 0;
-        BPF_S1  = 0;
-        BPF_CS0 = 0;
-        BPF_CS1 = 1;
-    }
-    else                                                       // > 31.6Mhz
-    {
-        BPF_S0  = 0;
-        BPF_S1  = 0;
-        BPF_CS0 = 1;
-        BPF_CS1 = 0;
-    }
-    
-    Display_Frequency();  // Update Frequency Display
-}
-
-/*******************************************************************************
-* Sets the RF Gain on the Mixer & Oscillator Board
-*
-*
-*
-*******************************************************************************/
-void Set_RFGain()
-{
-    switch(rf_gain) // Action based on gain selected
-    {
-        case 0:  // Select -24dB RF Gain
-            ATT_S0  = 0;    // RF Attenuator Select 0
-            ATT_S1  = 1;    // RF Attenuator Select 1
-        break;
-        case 1:  // Select -6dB RF Gain
-            ATT_S0  = 1;    // RF Attenuator Select 0
-            ATT_S1  = 0;    // RF Attenuator Select 1
-        break;
-        case 2:  // Select 0dB RF Gain
-            ATT_S0  = 0;    // RF Attenuator Select 0
-            ATT_S1  = 0;    // RF Attenuator Select 1
-        break;
-        case 3:  // Select +15dB RF Gain
-            ATT_S0  = 1;    // RF Attenuator Select 0
-            ATT_S1  = 1;    // RF Attenuator Select 1
-        break;
-        default: // Default 0dB RF Gain
-            ATT_S0  = 0;    // RF Attenuator Select 0
-            ATT_S1  = 0;    // RF Attenuator Select 1
-    }
+    si5351aSetFrequency(2 * radio_freq);    // Set oscillator frequency
+    Set_bandpass_Filters(radio_freq);       // Select bandpass filter on mixer bd
+    Display_Frequency();                    // Update Frequency Display
 }
