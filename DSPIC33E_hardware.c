@@ -1,9 +1,13 @@
 /******************************************************************************
- This work is licensed under the Creative Commons Attribution-ShareAlike
-4.0 International License. To view a copy of this license, visit
-http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to
-Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
- *****************************************************************************/
+* DSPIC33E_hardware.c
+* This code contains routines to initialize  and configure
+* the dsPIC33EP512MU810 internal hardware and I/O pins.
+*
+* This work is licensed under the Creative Commons Attribution-ShareAlike
+* 4.0 International License. To view a copy of this license, visit
+* http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to
+* Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+******************************************************************************/
 
 // #if defined(__dsPIC33E__)
 // #include "p33exxxx.h"
