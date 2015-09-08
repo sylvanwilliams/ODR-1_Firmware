@@ -195,9 +195,9 @@ void Page0_pointer2_update()
     else if ((page_pointer2 & 0x8000) && (encoderCount)) //pointer has focus and encoder moved
     {
         page_pointer2 += encoderCount; // add the rotary encoder count to pointer position
-        if (page_pointer2 > 0x8005) // if above highest possible count
+        if (page_pointer2 > 0x8007) // if above highest possible count
         {
-            page_pointer2 = 0x8005; // Stop at highest count
+            page_pointer2 = 0x8007; // Stop at highest count
         }
         else if (page_pointer2 < 0x8000) // if below lowest possible count
         {
@@ -216,11 +216,40 @@ void Page0_pointer2_update()
 
         switch (page_pointer2) // Action based on item being pointed to
         {
-        case 0x0000: // Pointer position 0 Main Menu
-
-            Display_MicGain(); // temporarily do something for this case
+        case 0x0000: // Pointer position 0 Time hours
+            rtc_hrs += encoderCount;
+            if (rtc_hrs > 23) // if above highest possible count
+            {
+                rtc_hrs = 23; // stop at max
+            }
+            else if (rtc_hrs < 0) // if below lowest possible count
+            {
+                rtc_hrs = 0; // stop at minimum
+            }
             break;
-        case 0x0001: // Pointer position 1 Mic Gain
+        case 0x0001: // Pointer position 1 Time Minutes
+            rtc_min += encoderCount;
+            if (rtc_min > 59) // if above highest possible count
+            {
+                rtc_min = 59; // stop at max
+            }
+            else if (rtc_min < 0) // if below lowest possible count
+            {
+                rtc_min = 0; // stop at minimum
+            }
+            break;
+        case 0x0002: // Pointer position 2 Time Seconds
+            rtc_sec += encoderCount;
+            if (rtc_sec > 59) // if above highest possible count
+            {
+                rtc_sec = 59; // stop at max
+            }
+            else if (rtc_sec < 0) // if below lowest possible count
+            {
+                rtc_sec = 0; // stop at minimum
+            }
+            break;
+        case 0x0003: // Pointer position 1 Mic Gain
             mic_gain += encoderCount;
             if (mic_gain > 20) // if above highest possible count
             {
@@ -232,7 +261,7 @@ void Page0_pointer2_update()
             }
             Display_MicGain(); // Update Mic Gain Display
             break;
-        case 0x0002: // Pointer position 2 keyer speed
+        case 0x0004: // Pointer position 2 keyer speed
             key_speed += encoderCount;
             if (key_speed > 50) // if above highest possible count
             {
@@ -244,7 +273,7 @@ void Page0_pointer2_update()
             }
             Display_KeyerSpeed(); // Update Keyer speed
             break;
-        case 0x0003: // Pointer position 3 BW Filter
+        case 0x0005: // Pointer position 3 BW Filter
             filter_bw += encoderCount;
             if (filter_bw > 1000) // if above highest possible count
             {
@@ -256,7 +285,7 @@ void Page0_pointer2_update()
             }
             Display_FilterBW(); // Update BW Filter Display
             break;
-        case 0x0004: // Pointer position 4 RF Gain
+        case 0x0006: // Pointer position 4 RF Gain
             rf_gain += encoderCount;
             if (rf_gain > 3)        // if above highest possible count
             {
@@ -269,7 +298,7 @@ void Page0_pointer2_update()
             Set_RFGain();     // Set the RF gain on the Osc & Mix Board
             Display_RFGain(); // Update RF Gain Display
             break;
-        case 0x0005: // Pointer position 5 AF Gain
+        case 0x0007: // Pointer position 5 AF Gain
             af_gain += encoderCount;
             if (af_gain > 29) // if above highest possible count
             {
@@ -502,7 +531,7 @@ void Display_TX_Offset()
 *******************************************************************************/
 void Display_MicGain()
 {
-    if ((page_pointer2 & 0x00FF)== 1) // If Mic Gain has navigation focus
+    if ((page_pointer2 & 0x00FF)== 3) // If Mic Gain has navigation focus
     {
         BACK_COLOR = char_hglt_color;
     }
@@ -520,7 +549,7 @@ void Display_MicGain()
 *******************************************************************************/
 void Display_KeyerSpeed()
 {
-    if ((page_pointer2 & 0x00FF)== 2) // If Keyer Speed has navigation focus
+    if ((page_pointer2 & 0x00FF)== 4) // If Keyer Speed has navigation focus
     {
         BACK_COLOR = char_hglt_color;
     }
@@ -538,7 +567,7 @@ void Display_KeyerSpeed()
 *******************************************************************************/
 void Display_FilterBW()
 {
-    if ((page_pointer2 & 0x00FF)== 3) // If BW Filter has navigation focus
+    if ((page_pointer2 & 0x00FF)== 5) // If BW Filter has navigation focus
     {
         BACK_COLOR = char_hglt_color;
     }
@@ -556,7 +585,7 @@ void Display_FilterBW()
 *******************************************************************************/
 void Display_RFGain()
 {
-    if ((page_pointer2 & 0x00FF)== 4)     // If RF Gain has navigation focus
+    if ((page_pointer2 & 0x00FF)== 6)     // If RF Gain has navigation focus
     {
         BACK_COLOR = char_hglt_color;
     }
@@ -590,7 +619,7 @@ void Display_RFGain()
 void Display_AFGain()
 {
     int16 temp;
-    if ((page_pointer2 & 0x00FF)== 5) // If AF Gain has navigation focus
+    if ((page_pointer2 & 0x00FF)== 7) // If AF Gain has navigation focus
     {
         BACK_COLOR = char_hglt_color;
     }
@@ -644,9 +673,29 @@ void Read_RTC_Time()
 *******************************************************************************/
 void Display_UTC_24HR()
 {
-    LCD_16wz_Num(12,162,rtc_hrs,2);     // Display hours   16x24 font
-    LCD_16wz_Num(44,162,rtc_min,2);     // Display minutes 16x24 font
-    LCD_16wz8_Num(80,170,rtc_sec,2);    // Display seconds 8x16 font
+    uint16 temp = (page_pointer2 & 0x00FF); // mask off the pointer count
+    POINT_COLOR = char_norm_color;
+
+    if (temp == 0)                       // If Hours has the focus
+    {
+        BACK_COLOR = char_hglt_color;    // Highlight hours
+    }
+    LCD_16wz_Num(12,162,rtc_hrs,2);      // Display hours   16x24 font
+    BACK_COLOR = field_color;            // Restore the background color
+
+    if (temp == 1)                       // If Minutes has the focus
+    {
+        BACK_COLOR = char_hglt_color;    // Highlight minutes
+    }
+    LCD_16wz_Num(44,162,rtc_min,2);      // Display minutes 16x24 font
+    BACK_COLOR = field_color;            // Restore the background color
+
+    if (temp == 2)                       // If Seconds has the focus
+    {
+        BACK_COLOR = char_hglt_color;    // Highlight seconds
+    }
+    LCD_16wz8_Num(80,170,rtc_sec,2);     // Display seconds 8x16 font
+    BACK_COLOR = field_color;            // Restore the background color
 }
 
 /*******************************************************************************

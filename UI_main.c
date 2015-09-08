@@ -38,16 +38,16 @@
 
 //Variables
 uint16 current_page = 0;
-int16 page_pointer1    = 5;          // Default to kHz freq
-int16 page_pointer2    = 5;          // Default to AF gain
+int16 page_pointer1    = 5;       // Default to kHz freq
+int16 page_pointer2    = 7;       // Default to AF gain
 
 int16 active_color_pallet = 0;
-uint16 char_hglt_color; // Character Highlight Color
-uint16 char_norm_color; // Character Normal Color
-uint16 char_rev_color;  // Character Reverse Color
-uint16 field_color;     // Main field Color
-uint16 heading_color;   // Heading Color
-uint16 border_color;    // Border Color
+uint16 char_hglt_color;           // Character Highlight Color
+uint16 char_norm_color;           // Character Normal Color
+uint16 char_rev_color;            // Character Reverse Color
+uint16 field_color;               // Main field Color
+uint16 heading_color;             // Heading Color
+uint16 border_color;              // Border Color
 
 sEncoderData encoder1Data;
 sEncoderData encoder2Data;
