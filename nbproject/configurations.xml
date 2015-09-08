@@ -17,6 +17,7 @@
       <itemPath>si5351a.h</itemPath>
       <itemPath>devconfig.h</itemPath>
       <itemPath>TLV320AIC3204.h</itemPath>
+      <itemPath>DSP.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -36,6 +37,7 @@
       <itemPath>UI_page2.c</itemPath>
       <itemPath>si5351a.c</itemPath>
       <itemPath>TLV320AIC3204.c</itemPath>
+      <itemPath>DSP.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
