@@ -89,7 +89,7 @@ void Encoder1_Update()
             {
                 current_page = 0; // exit back to page 0
                 page_pointer1 = 5; // Default to kHz Frequency
-                page_pointer2 = 5; // Default to AF Gain
+                page_pointer2 = 7; // Default to AF Gain
                 Refresh_page0(); // display page 0
             }
             encoder1Data.buttonCount = 0;
@@ -162,7 +162,7 @@ void Encoder2_Update()
             {
                 current_page = 0; // exit back to page 0
                 page_pointer1 = 5; // Default to kHz Frequency
-                page_pointer2 = 5; // Default to AF Gain
+                page_pointer2 = 7; // Default to AF Gain
                 Refresh_page0(); // display page 0
             }
             encoder2Data.buttonCount = 0;

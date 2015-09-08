@@ -137,7 +137,7 @@ void Init_SPI2()
 //void Init_SPI2(int cke, int ckp)
 {
 
-    // setup the SPI2 peripheral
+    // Uncomment to setup the SPI2 peripheral using FIFO buffer
     SPI2STAT = 0x0;                     // disable the SPI module (just in case)
     IFS2bits.SPI2IF = 0;                //Clear interrupt flag
     SPI2STATbits.SISEL = 3;             //Select interrupt mode for SRRBF full
@@ -149,8 +149,14 @@ void Init_SPI2()
     
     SPI2STATbits.SPIROV = 0;
     SPI2CON2bits.SPIBEN = 1;
-    
     SPI2STATbits.SPIEN = 1;
+
+    // Uncomment to setup the SPI2 peripheral without FIFO
+//    SPI2STAT = 0x0;                     // disable the SPI module (just in case)
+//    SPI2CON1 = SPI2CON1_INIT;           // see header file for SPI2 configuration
+//    SPI2CON2 = SPI2CON2_INIT;           // see header file for SPI2 configuration
+//    SPI2STAT = 0x8000;                  // enable the SPI2 module
+
 // Another way to configure the SPI2CON1 register
 //		SPI2CON1bits.CKP=0;         // Idle state for clock is a low level
 //		SPI2CON1bits.CKE=1;         // Data out on Active to Idle Edge
