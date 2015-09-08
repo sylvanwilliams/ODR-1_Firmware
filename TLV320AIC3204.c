@@ -70,9 +70,10 @@ void Init_Audio_Codec(void)
     delayms(2);    // Delay for 2mS before first write
 
     Codec_Write_SPI (0, 0);           // Select page 0
-    Codec_Write_SPI (27, 0b01111101); // Audio Interface Set 1 WCLK & BCLK out, 32 bit DSP
-    Codec_Write_SPI (28, 0b00000000); // Audio Interface Set 2 Data Offset = 0 BCLKs default
+    Codec_Write_SPI (27, 0b01001101); // Audio Interface Set 1 WCLK & BCLK out, 16 bit DSP
+    Codec_Write_SPI (28, 0b00000000); // Audio Interface Set 2 Data Offset = 0 BCLKs
     Codec_Write_SPI (29, 0b00000000); // Audio Interface Set 3 default
+//    Codec_Write_SPI (29, 0b00010000); // Audio Interface Set 3 Send ADC to DAC
 	
 	// PLL clock of 98.304 MHz derrived from a 12MHz MCLK input
     Codec_Write_SPI (4,  0b00000011); // Clock Setting Register 1, PLL Mux PLL_CLKIN = MCLK = 12MHZ 
@@ -95,11 +96,14 @@ void Init_Audio_Codec(void)
     Codec_Write_SPI (65, 0b00000000); // Left DAC Channel Digital Volume
     Codec_Write_SPI (63, 0b11010100); // DAC Channel Setup Register 1
 
-    //Codec_Write_SPI (81, 0b00000010); // ADC Channel Setup, disable soft stepping
+    Codec_Write_SPI (81, 0b11000000); // ADC Channel Setup, power-up ADCs
+    Codec_Write_SPI (82, 0b00000000); // Unmute ADCs (muted at reset!)
 
     Codec_Write_SPI (0, 1);           // Select page 1
     Codec_Write_SPI (1,  0b00001000); // Disable connection of AVDD with DVDD
     Codec_Write_SPI (2,  0b00000001); // AVDD LDO Powered up 1.72V
+    Codec_Write_SPI (3,  0b00001000); // Left DAC is Class AB and PTM_P1
+    Codec_Write_SPI (4,  0b00001000); // Right DAC is Class AB and PTM_P1
     Codec_Write_SPI (10, 0b00000000); // Common Mode Control CM 0.9V LDOIN 1.8-3.6V
     Codec_Write_SPI (9,  0b00110011); // Output Driver Power Control HPL HPR MAL MAR on
     delayms(1000);    // Delay for supply rail powerup
@@ -111,8 +115,11 @@ void Init_Audio_Codec(void)
     Codec_Write_SPI (58, 0b00001100); // Floating Input Configuration IN3L IN3R
     Codec_Write_SPI (71, 0b00110010); // Analog Input Quick Charging 6.4ms
 
-    Codec_Write_SPI (12, 0b00000010); // HPL Routing Selection MAL
-    Codec_Write_SPI (13, 0b00000010); // HPR Routing Selection MAR
+//    Codec_Write_SPI (12, 0b00000010); // HPL Routing Selection MAL
+//    Codec_Write_SPI (13, 0b00000010); // HPR Routing Selection MAR
+    
+    Codec_Write_SPI (12, 0b00001000); // HPL Routing Selection LDAC+
+    Codec_Write_SPI (13, 0b00001000); // HPR Routing Selection RDAC+
 
     //Codec_Write_SPI (12, 0b00000100); // HPL Routing Selection IN1L
     //Codec_Write_SPI (13, 0b00000100); // HPR Routing Selection IN1R

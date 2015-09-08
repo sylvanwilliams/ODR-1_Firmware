@@ -344,8 +344,8 @@ void Init_P33EP512MU810_pins()
     // Map Audio Codec clock, interrupt and DCI module pins
     RPINR24bits.CSDIR = 0b0010111;    // DCI CSDI to RA7 RPI23 Table 11-1, 11-2
     RPOR4bits.RP80R   = 0b001011;     // DCI CSDO to RE0 RP80 Table 11-3
-    RPOR15bits.RP126R = 0b001101;     // DCI COFS to RG14 RP126 Table 11-3
-    RPOR14bits.RP125R = 0b001100;     // DCI CSCK to RG13 RP125 Table 11-3
+    RPINR24bits.CSCKR = 0b1111101;    // DCI BCLK input to RP125
+    RPINR25bits.COFSR = 0b1111110;    // DCI WCLK input to RP126
     RPOR5bits.RP82R   = 0b110001;     // REFCLK to RE2 RP82 Table 11-3 used for MCLK
     RPINR0bits.INT1R  = 0b1010011;    // EXT INT1 to RE3 RPI83 Table 11-1, 11-2
 
@@ -523,7 +523,9 @@ void Init_Timer1( void )
  *
  * Side Effects:   None
  *
- * Overview:       
+ * Overview: Initializes DCI interface as a slave to the audio codec.
+ *              Configured for 16bit word length with 2 words per frame.
+ *              ISR is fired after 2 words have been received.       
  *****************************************************************************/
 void Init_DCI(void)
 {
@@ -534,7 +536,7 @@ void Init_DCI(void)
     TSCONbits.TSE0 = 1; /* Enable Transmit Time Slot 0 */
     
     DCICON1bits.COFSM = 0; /* Multichannel Frame Sync mode */
-    DCICON1bits.DJST = 1; /* Data TX/RX is begun in the same clock cycle as frame sync pulse */
+    DCICON1bits.DJST = 0; /* Data TX/RX is begun one serial clock cycle after frame sync pulse */
     DCICON1bits.CSCKE = 0; /* Data changes on rising edge sampled on falling edge of CSCK */
     DCICON1bits.COFSD = 1; /* Frame sync driven by codec*/
     DCICON1bits.CSCKD = 1; /* Clock is input to DCI from codec */
@@ -546,6 +548,9 @@ void Init_DCI(void)
     IPC15bits.DCIIP = 6; /* Enable the interrupts */
     IFS3bits.DCIIF = 0;
     IEC3bits.DCIIE = 0;
+    
+    TXBUF0 = 0x0000;
+    TXBUF1 = 0x0000;
     
     DCICON1bits.DCIEN = 1; /* Enable the module*/
     IEC3bits.DCIIE = 1;

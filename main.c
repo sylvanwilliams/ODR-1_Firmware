@@ -25,6 +25,7 @@
 #include "UI_page2.h"
 #include "si5351a.h"
 #include "TLV320AIC3204.h"
+#include "DSP.h"
 
 void Service_Interface(void);
 void Init_Mixer_Board();
@@ -58,6 +59,7 @@ int main(void)
     Refresh_page0();        // Refresh main screen
     
     Init_Audio_Codec();      // Initialize the audio Codec
+    Init_DCI();
 
     //Configure Timer1 for interrupt operation
     Init_Timer1();
