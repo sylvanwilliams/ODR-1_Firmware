@@ -204,36 +204,15 @@ void Page0_pointer2_update()
         {
         case 0x0000: // Pointer position 0 Time hours
             rtc_hrs += encoderCount;
-            if (rtc_hrs > 23) // if above highest possible count
-            {
-                rtc_hrs = 23; // stop at max
-            }
-            else if (rtc_hrs < 0) // if below lowest possible count
-            {
-                rtc_hrs = 0; // stop at minimum
-            }
+            Write_RTC_Hrs(rtc_hrs);
             break;
         case 0x0001: // Pointer position 1 Time Minutes
             rtc_min += encoderCount;
-            if (rtc_min > 59) // if above highest possible count
-            {
-                rtc_min = 59; // stop at max
-            }
-            else if (rtc_min < 0) // if below lowest possible count
-            {
-                rtc_min = 0; // stop at minimum
-            }
+            Write_RTC_Min(rtc_min);
             break;
         case 0x0002: // Pointer position 2 Time Seconds
             rtc_sec += encoderCount;
-            if (rtc_sec > 59) // if above highest possible count
-            {
-                rtc_sec = 59; // stop at max
-            }
-            else if (rtc_sec < 0) // if below lowest possible count
-            {
-                rtc_sec = 0; // stop at minimum
-            }
+            Write_RTC_Sec(rtc_sec);
             break;
         case 0x0003: // Pointer position 1 Mic Gain
             mic_gain += encoderCount;
@@ -636,7 +615,7 @@ void Read_RTC_Time()
     uint16 temp;
 
     RCFGCALbits.RTCPTR = 0b01;               // Set RTCC Register Pointer to Days and Hours
-    temp = RTCVAL;                           // Read Days and Hours
+    temp = RTCVAL;                           // Read Weekday and Hours
     rtc_hrs = (temp & 0x0030);               // mask off the HRTEN digit
     rtc_hrs = ((rtc_hrs >>4) * 10);          // Create decimal of 00, 10 or 20
     rtc_hrs = (rtc_hrs + (temp & 0x000F));   // Add in the HRONE value
@@ -651,6 +630,151 @@ void Read_RTC_Time()
     rtc_min = ((rtc_min >>4) * 10);          // Create decimal of 00,10...50
     rtc_min = (rtc_min + (temp & 0x000F));   // Add in the MINONE value
 
+}
+
+/*******************************************************************************
+* Write the Real Time Clock Module Hours
+*
+*******************************************************************************/
+void Write_RTC_Hrs(int16 hours)
+{
+    uint16 temp;
+
+    if (hours > 23)      // if above highest possible count
+    {
+        hours = 0x23;    // set hours to max BCD value
+    }
+    else if (hours < 0)  // if below lowest possible count
+    {
+        hours = 0x00;    // set hours to min BCD value
+    }
+    else                 // Otherwise we have an in bound value
+    {
+        if (hours > 19)
+        {
+            hours = (hours -20);  // Get BCD 1s digit
+            hours = hours + 0x20; // Add BCD 10s digit
+        }
+        else if (hours > 9)
+        {
+            hours = (hours -10);  // Get BCD 1s digit
+            hours = hours + 0x10; // Add BCD 10s digit
+        }
+    }
+    __builtin_write_RTCWEN();     // Enable access to the RTC registers
+    RCFGCALbits.RTCPTR = 0b01;    // Set RTCC Register Pointer to Days and Hours
+    temp = (RTCVAL & 0xFF00);     // Keep Weekday and clear Hours
+    RCFGCALbits.RTCPTR = 0b01;    // Set RTCC Register Pointer to Days and Hours
+    RTCVAL = temp | hours;        // Write new hours to RTCC module
+    RCFGCALbits.RTCWREN = 0;      // Disable writes to the RTC control register
+    Read_RTC_Time();              // Refresh the time values
+}
+
+/*******************************************************************************
+* Write the Real Time Clock Module Minutes
+*
+*******************************************************************************/
+void Write_RTC_Min(int16 minutes)
+{
+    uint16 temp;
+
+    if (minutes > 59)      // if above highest possible count
+    {
+        minutes = 0x59;    // set hours to max BCD value
+    }
+    else if (minutes < 0)  // if below lowest possible count
+    {
+        minutes = 0x00;    // set hours to min BCD value
+    }
+    else                 // Otherwise we have an in bound value
+    {
+        if (minutes > 49)
+        {
+            minutes = (minutes -50);  // Get BCD 1s digit
+            minutes = minutes + 0x50; // Add BCD 10s digit
+        }
+        else if (minutes > 39)
+        {
+            minutes = (minutes -40);  // Get BCD 1s digit
+            minutes = minutes + 0x40; // Add BCD 10s digit
+        }
+        else if (minutes > 29)
+        {
+            minutes = (minutes -30);  // Get BCD 1s digit
+            minutes = minutes + 0x30; // Add BCD 10s digit
+        }
+        else if (minutes > 19)
+        {
+            minutes = (minutes -20);  // Get BCD 1s digit
+            minutes = minutes + 0x20; // Add BCD 10s digit
+        }
+        else if (minutes > 9)
+        {
+            minutes = (minutes -10);  // Get BCD 1s digit
+            minutes = minutes + 0x10; // Add BCD 10s digit
+        }
+    }
+    minutes = minutes <<8;        // Shift minutes in to high Byte
+    __builtin_write_RTCWEN();     // Enable access to the RTC registers
+    RCFGCALbits.RTCPTR = 0b00;    // Set RTCC Register Pointer to Min and Sec
+    temp = (RTCVAL & 0x00FF);     // Keep Seconds and clear Minutes
+    RCFGCALbits.RTCPTR = 0b00;    // Set RTCC Register Pointer to Min and Sec
+    RTCVAL = temp | minutes;      // Write new minutes to RTCC module
+    RCFGCALbits.RTCWREN = 0;      // Disable writes to the RTC control register
+    Read_RTC_Time();              // Refresh the time values
+}
+
+/*******************************************************************************
+* Write the Real Time Clock Module Minutes
+*
+*******************************************************************************/
+void Write_RTC_Sec(int16 seconds)
+{
+    uint16 temp;
+
+    if (seconds > 59)      // if above highest possible count
+    {
+        seconds = 0x59;    // set hours to max BCD value
+    }
+    else if (seconds < 0)  // if below lowest possible count
+    {
+        seconds = 0x00;    // set hours to min BCD value
+    }
+    else                 // Otherwise we have an in bound value
+    {
+        if (seconds > 49)
+        {
+            seconds = (seconds -50);  // Get BCD 1s digit
+            seconds = seconds + 0x50; // Add BCD 10s digit
+        }
+        else if (seconds > 39)
+        {
+            seconds = (seconds -40);  // Get BCD 1s digit
+            seconds = seconds + 0x40; // Add BCD 10s digit
+        }
+        else if (seconds > 29)
+        {
+            seconds = (seconds -30);  // Get BCD 1s digit
+            seconds = seconds + 0x30; // Add BCD 10s digit
+        }
+        else if (seconds > 19)
+        {
+            seconds = (seconds -20);  // Get BCD 1s digit
+            seconds = seconds + 0x20; // Add BCD 10s digit
+        }
+        else if (seconds > 9)
+        {
+            seconds = (seconds -10);  // Get BCD 1s digit
+            seconds = seconds + 0x10; // Add BCD 10s digit
+        }
+    }
+    __builtin_write_RTCWEN();     // Enable access to the RTC registers
+    RCFGCALbits.RTCPTR = 0b00;    // Set RTCC Register Pointer to Min and Sec
+    temp = (RTCVAL & 0xFF00);     // Keep Minutes and clear Seconds
+    RCFGCALbits.RTCPTR = 0b00;    // Set RTCC Register Pointer to Min and Sec
+    RTCVAL = temp | seconds;      // Write new minutes to RTCC module
+    RCFGCALbits.RTCWREN = 0;      // Disable writes to the RTC control register
+    Read_RTC_Time();              // Refresh the time values
 }
 
 /*******************************************************************************
