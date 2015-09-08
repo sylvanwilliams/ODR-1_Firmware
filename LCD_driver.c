@@ -1,15 +1,8 @@
 /*******************************************************************************
-* Simple graphics and text library for a 320x240 display using an ILI9341
-* display controller connected via 5-wire SPI (MISO, MOSI, SCK, CS, DS)
-*
-* Authors: Unknown, Bill Peterson,
-* Changes:
-* 2014-Jan Keil basic code with sparse Chinese comments and no author listed
-*          Removed Keil code, translated comments, debugged functions
-*          Added larger font functions,font arrays now read left to right
-*          Increased character writing function speed, remove wasted code
-* 2014-Feb Removed LCDsys.c,h and combined with LCD.c,h
-*          Add comment section per function.
+This work is licensed under the Creative Commons Attribution-ShareAlike
+4.0 International License. To view a copy of this license, visit
+http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to
+Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 *******************************************************************************/
 
 #include "LCD_fonts.h"

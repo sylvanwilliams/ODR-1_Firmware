@@ -1,17 +1,9 @@
 /******************************************************************************
- * Header file for DSPIC33E_hardware.c
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *****************************************************************************/
+ This work is licensed under the Creative Commons Attribution-ShareAlike
+4.0 International License. To view a copy of this license, visit
+http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to
+Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+*/
 
 // Board specific definitions
 #ifndef __DSPIC33E_HARDWARE_H
@@ -28,7 +20,7 @@
 #define TIMER_PRESCALER_64      2
 #define TIMER_PRESCALER_256     3
 
-#define TIMER_PRESCALER TIMER_PRESCALER_64
+#define TIMER_PRESCALER TIMER_PRESCALER_256
 
 #if TIMER_PRESCALER == TIMER_PRESCALER_1
 #define TIMER_PRESCALER_VALUE 1
@@ -40,7 +32,7 @@
 #define TIMER_PRESCALER_VALUE 256
 #endif
 
-#define TIMER1_CYCLE_TIME 1e-3
+#define TIMER1_CYCLE_TIME 100e-3
 #define TIMER1_PERIOD ((TIMER1_CYCLE_TIME/(16.66667e-9 * TIMER_PRESCALER_VALUE)))
 
 
