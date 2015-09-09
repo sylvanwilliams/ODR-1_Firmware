@@ -20,6 +20,7 @@
       <itemPath>DSP.h</itemPath>
       <itemPath>ODR1_Control_1.h</itemPath>
       <itemPath>ODR1_Control_2.h</itemPath>
+      <itemPath>ODR1_Meters.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -42,6 +43,7 @@
       <itemPath>DSP.c</itemPath>
       <itemPath>ODR1_Control_1.c</itemPath>
       <itemPath>ODR1_Control_2.c</itemPath>
+      <itemPath>ODR1_Meters.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
