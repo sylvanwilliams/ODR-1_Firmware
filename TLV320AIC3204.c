@@ -115,11 +115,11 @@ void Init_Audio_Codec(void)
     Codec_Write_SPI (58, 0b00001100); // Floating Input Configuration IN3L IN3R
     Codec_Write_SPI (71, 0b00110010); // Analog Input Quick Charging 6.4ms
 
-//    Codec_Write_SPI (12, 0b00000010); // HPL Routing Selection MAL
-//    Codec_Write_SPI (13, 0b00000010); // HPR Routing Selection MAR
+    Codec_Write_SPI (12, 0b00000010); // HPL Routing Selection MAL
+    Codec_Write_SPI (13, 0b00000010); // HPR Routing Selection MAR
     
-    Codec_Write_SPI (12, 0b00001000); // HPL Routing Selection LDAC+
-    Codec_Write_SPI (13, 0b00001000); // HPR Routing Selection RDAC+
+//    Codec_Write_SPI (12, 0b00001000); // HPL Routing Selection LDAC+
+//    Codec_Write_SPI (13, 0b00001000); // HPR Routing Selection RDAC+
 
     //Codec_Write_SPI (12, 0b00000100); // HPL Routing Selection IN1L
     //Codec_Write_SPI (13, 0b00000100); // HPR Routing Selection IN1R
@@ -299,15 +299,19 @@ void Codec_Config_TX_Mic (void)
 }
 
 /*******************************************************************************
-* Codec_Config_PT_RX
+* Codec_Config_PT1_RX
 *
-* Configure Codec for Pass Through Receive
+* Configure Codec for Analog Pass Through Receive
+* I&Q are amplified and passed through to the Headphones
 * This configuration is for external computer IQ mod/demod
 * 
 *
 *******************************************************************************/
-void Codec_Config_PT_RX (void)
+void Codec_Config_PT1_RX (void)
 {
+    Codec_Write_SPI (0, 0);           // Select page 0
+    Codec_Write_SPI (29, 0b00000000); // Audio Interface Set 3 default
+
     Codec_Write_SPI (0, 1);           // Select page 1
     Codec_Write_SPI (52, 0b00010000); // Left MICPGA Pos Input Routing IN2L+ RX_I+
     Codec_Write_SPI (54, 0b00010000); // Left MICPGA Neg Input Routing IN2R- RX_I-
@@ -320,23 +324,21 @@ void Codec_Config_PT_RX (void)
 
     Codec_Write_SPI (59, 0b00001100); // Left MICPGA Volume 6dB to 53dB diff gain
     Codec_Write_SPI (60, 0b00001100); // Right MICPGA Volume 6dB to 53dB diff gain
-
-    Codec_Write_SPI (16, 0b00001111); // HPL Driver Gain Setting +15dB
-    Codec_Write_SPI (17, 0b00001111); // HPR Driver Gain Setting +15dB
   
     Codec_Write_SPI (24, 0b00000000); // Mixer Amp Left Volume 0dB to -30dB
     Codec_Write_SPI (25, 0b00000000); // Mixer Amp Right Volume 0dB to -30dB
 }
 
 /*******************************************************************************
-* Codec_Config_PT_TX
+* Codec_Config_PT1_TX
 *
-* Configure Codec for Pass Through Transmit using Stereo Mic Input for I & Q
+* Configure Codec for All Analog Pass Through Transmit
+* using Stereo Mic Input for I & Q.
 * This configuration is for external computer IQ mod/demod
 * 
 *
 *******************************************************************************/
-void Codec_Config_PT_TX (void)
+void Codec_Config_PT1_TX (void)
 {
     Codec_Write_SPI (0, 1);           // Select page 1
     Codec_Write_SPI (58, 0b11110000); // Floating Inputs connect to common mode
@@ -351,6 +353,64 @@ void Codec_Config_PT_TX (void)
     Codec_Write_SPI (24, 0b00000000); // Mixer Amp Left Volume 0dB
     Codec_Write_SPI (25, 0b00000000); // Mixer Amp Right Volume 0dB
 	
+}
+
+/*******************************************************************************
+* Codec_Config_PT2_RX
+*
+* Configure Codec for Digital Pass Through Receive
+* I&Q are sampled by the ADC and Passed to the DAC then to the Headphones
+* This configuration keeps audio data within the CODEC
+*
+*
+*******************************************************************************/
+void Codec_Config_PT2_RX (void)
+{
+    Codec_Write_SPI (0, 0);           // Select page 0
+    Codec_Write_SPI (29, 0b00010000); // Audio Interface Set 3 Send ADC to DAC
+
+    Codec_Write_SPI (0, 1);           // Select page 1
+    Codec_Write_SPI (52, 0b00010000); // Left MICPGA Pos Input Routing IN2L+ RX_I+
+    Codec_Write_SPI (54, 0b00010000); // Left MICPGA Neg Input Routing IN2R- RX_I-
+    Codec_Write_SPI (55, 0b01000000); // Right MICPGA Pos Input Routing IN1R+ RX_Q+
+    Codec_Write_SPI (57, 0b00010000); // Right MICPGA Neg Input Routing IN1L- RX_Q-
+    Codec_Write_SPI (58, 0b00001100); // Floating Input Configuration IN3L IN3R
+
+    Codec_Write_SPI (12, 0b00001000); // HPL Routing Selection LDAC+
+    Codec_Write_SPI (13, 0b00001000); // HPR Routing Selection RDAC+
+
+    Codec_Write_SPI (59, 0b00001100); // Left MICPGA Volume 6dB to 53dB diff gain
+    Codec_Write_SPI (60, 0b00001100); // Right MICPGA Volume 6dB to 53dB diff gain
+
+}
+
+/*******************************************************************************
+* Codec_Config_PT3_RX
+*
+* Configure Codec for Digital Pass Through Receive
+* I&Q are sampled by the ADC, passed to DSP then DAC then to the Headphones
+* This configuration allows the dsPIC to see the audio data stream
+*
+*
+*******************************************************************************/
+void Codec_Config_PT3_RX (void)
+{
+    Codec_Write_SPI (0, 0);           // Select page 0
+    Codec_Write_SPI (29, 0b00000000); // Audio Interface Set 3 default
+
+    Codec_Write_SPI (0, 1);           // Select page 1
+    Codec_Write_SPI (52, 0b00010000); // Left MICPGA Pos Input Routing IN2L+ RX_I+
+    Codec_Write_SPI (54, 0b00010000); // Left MICPGA Neg Input Routing IN2R- RX_I-
+    Codec_Write_SPI (55, 0b01000000); // Right MICPGA Pos Input Routing IN1R+ RX_Q+
+    Codec_Write_SPI (57, 0b00010000); // Right MICPGA Neg Input Routing IN1L- RX_Q-
+    Codec_Write_SPI (58, 0b00001100); // Floating Input Configuration IN3L IN3R
+
+    Codec_Write_SPI (12, 0b00001000); // HPL Routing Selection LDAC+
+    Codec_Write_SPI (13, 0b00001000); // HPR Routing Selection RDAC+
+
+    Codec_Write_SPI (59, 0b00001100); // Left MICPGA Volume 6dB to 53dB diff gain
+    Codec_Write_SPI (60, 0b00001100); // Right MICPGA Volume 6dB to 53dB diff gain
+
 }
 
 /*******************************************************************************

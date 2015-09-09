@@ -23,10 +23,12 @@ void Codec_DAC_Gain (int8 DAC_Gain);         // Sets digital gain of L & R DAC o
 void Codec_ADC_Gain (int8 ADC_Gain);         // Sets digital gain of L & R ADC out
 void Codec_Mic_Bias (uint8 Mic_Bias);        // Turn Codec Mic Bias on(1) off(0)
 
-void Codec_Config_RX (void);         // Config Codec for Receive
-void Codec_Config_TX_Mic (void);     // Config Codec for Transmit using Mic input
-void Codec_Config_PT_RX (void);      // Config Codec for Pass Through Receive
-void Codec_Config_PT_TX (void);      // Config Codec for Pass Through Transmit
+void Codec_Config_RX (void);        // Config Codec for normal Receive
+void Codec_Config_TX_Mic (void);    // Config Codec for Transmit using Mic input
+void Codec_Config_PT1_RX (void);    // Config Analog Pass Through Receive
+void Codec_Config_PT1_TX (void);    // Config Analog Pass Through Transmit
+void Codec_Config_PT2_RX (void);    // Config ADC-DAC Pass Through Receive
+void Codec_Config_PT3_RX (void);    // Config ADC-DSP-DAC Pass Through Receive
 
 void Codec_Beep_Freq (uint8 Beep_Freq);  // Set Codec Beep Frequency
 void Codec_Beep_Vol (uint8 Beep_Vol);    // Set Codec Beep Volume

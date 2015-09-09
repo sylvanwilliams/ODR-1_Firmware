@@ -12,6 +12,7 @@
 #include "ODR1_Control_1.h"
 #include "si5351a.h"
 #include "TLV320AIC3204.h"
+#include "UI_page0.h"
 #include "LCD_driver.h"
 
 /******************************************************************************
@@ -163,4 +164,96 @@ void Set_RFGain(int16 gain)
             ATT_S0  = 0;    // RF Attenuator Select 0
             ATT_S1  = 0;    // RF Attenuator Select 1
     }
+}
+
+/******************************************************************************
+ * Function:       Radio_Receive
+ *
+ * PreCondition:   None
+ *
+ * Input:          int16 with value of 0 to 3
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Set radio to receive
+ *****************************************************************************/
+void Radio_Receive()
+{
+    Codec_HP_Gain(-7);    // Mute headphones
+    TX_RX   = 0;    // RX/TX Control line, 0=Receive
+    PTT_OUT = 0;    // Rear PTT Output
+
+    switch(rxtx_mode) // Action based on rxtx mode radio is in
+    {
+        case 0:  // Mode 0 CW
+            Codec_Config_PT1_RX();      // Configure CODEC for receive
+        break;
+        case 1:  // Mode 1 USB
+            Codec_Config_PT1_RX();      // Configure CODEC for receive
+        break;
+        case 2:  // Mode 2 LSB
+            Codec_Config_PT1_RX();      // Configure CODEC for receive
+        break;
+        case 3:  // Mode 3 AM
+            Codec_Config_PT1_RX();      // Configure CODEC for receive
+        break;
+        case 4:  // Mode 4 Analog Pass Through
+            Codec_Config_PT1_RX();      // Configure CODEC for receive
+        break;
+        case 5:  // Mode 5 ADC-DAC Pass Through
+            Codec_Config_PT2_RX();      // Configure CODEC for receive
+        break;
+        case 6:  // Mode 6 ADC-DSP-DAC Pass Through
+            Codec_Config_PT3_RX();      // Configure CODEC for receive
+        break;
+    }
+    Codec_HP_Gain(af_gain);    // Restore headphones gain 
+}
+
+/******************************************************************************
+ * Function:       Radio_Transmit
+ *
+ * PreCondition:   None
+ *
+ * Input:          int16 with value of 0 to 3
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Set radio to transmit
+ *****************************************************************************/
+void Radio_Transmit()
+{
+    Codec_HP_Gain(-7);    // Mute headphones
+
+    switch(rxtx_mode) // Action based on rxtx mode radio is in
+    {
+        case 0:  // Mode 0 CW
+            Codec_Config_PT1_TX();      // Configure CODEC for transmit
+        break;
+        case 1:  // Mode 1 USB
+            Codec_Config_TX_Mic();      // Configure CODEC for transmit
+        break;
+        case 2:  // Mode 2 LSB
+            Codec_Config_TX_Mic();      // Configure CODEC for transmit
+        break;
+        case 3:  // Mode 3 AM
+            Codec_Config_TX_Mic();      // Configure CODEC for transmit
+        break;
+        case 4:  // Mode 4 Analog Pass Through
+            Codec_Config_PT1_TX();      // Configure CODEC for transmit
+        break;
+        case 5:  // Mode 5 ADC-DAC Pass Through
+            Codec_Config_PT1_TX();      // Configure CODEC for transmit
+        break;
+        case 6:  // Mode 6 ADC-DSP-DAC Pass Through
+            Codec_Config_PT1_TX();      // Configure CODEC for transmit
+        break;
+    }
+    Codec_HP_Gain(af_gain);    // Restore headphones gain
+    TX_RX   = 1;    // RX/TX Control line, 0=Receive
+    PTT_OUT = 1;    // Rear PTT Output
 }

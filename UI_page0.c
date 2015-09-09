@@ -99,6 +99,7 @@ void Page0_pointer1_update()
                     rxtx_mode = 6;        // roll over
                 }
                 Display_RXTX_Mode();      // Display new mode selected
+                Radio_Receive();          // Set Radio to Receive
             break;
             case 0x0001:  // Pointer position 1 freq digit 8
                 radio_freq += (10000000 * encoderCount);
@@ -403,13 +404,13 @@ void Display_RXTX_Mode()
         case 3:  // Mode 3 AM
             LCD_16x24_String(10,66," AM");      // Display Mode AM
         break;
-        case 4:  // Mode 4 PT Pass Through
+        case 4:  // Mode 4 Analog Pass Through
             LCD_16x24_String(10,66,"PT1");      // Display Mode PT
         break;
-        case 5:  // Mode 4 PT Pass Through
+        case 5:  // Mode 5 ADC-DAC Pass Through
             LCD_16x24_String(10,66,"PT2");      // Display Mode PT
         break;
-        case 6:  // Mode 4 PT Pass Through
+        case 6:  // Mode 6 ADC-DSP-DAC Pass Through
             LCD_16x24_String(10,66,"PT3");      // Display Mode PT
         break;
     }

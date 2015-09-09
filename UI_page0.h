@@ -22,10 +22,12 @@
 //#define LCD_W 240   // Portrate
 //#define LCD_H 320   // Portrate
 
-extern int16 rxtx_mode;    // Mode
-extern int32 radio_freq;   // Radio frequency
-extern int16 tx_offset;    // Transmit Offset
-extern int16 mic_gain;     // Microphone gain
+extern int16 rxtx_mode;     // Mode
+extern int32 radio_freq;    // Radio frequency
+extern int16 tx_offset;     // Transmit Offset
+extern int16 mic_gain;      // Microphone gain
+extern int16 rf_gain;       // Receive RF gain
+extern int16 af_gain;       // Audio Headphone Gain
 
 // Functions
 void Page0_pointer1_update();   // Update pointer under mode freq and tx offset

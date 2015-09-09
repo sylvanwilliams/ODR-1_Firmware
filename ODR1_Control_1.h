@@ -22,6 +22,7 @@
 void Init_Mixer_Board();    // initialize the mixer board and oscillator
 void Set_bandpass_Filters(int32 freq);  // Set BP Filters on Osc & Mix Board
 void Set_RFGain(int16 gain);            // Set RF gain on Osc & Mix Board
-
+void Radio_Receive();                // Set radio to Receive
+void Radio_Transmit();               // Set radio to Transmit
 #endif
 
