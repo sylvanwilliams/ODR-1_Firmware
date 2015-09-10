@@ -36,6 +36,7 @@ void Refresh_page0();        // Refresh page 0
 void Display_RXTX_Mode();    // Display the current RX/TX Mode
 void Display_Frequency();    // Display the current Frequency
 void Display_TX_Offset();    // Display the transmit offset
+void Display_Battery_Volts(); // Display Battery Voltage
 void Display_MicGain();      // Display Mic Gain
 void Display_KeyerSpeed();   // Display Keyer Speed
 void Display_FilterBW();     // Display BW Filter
@@ -47,4 +48,5 @@ void Read_RTC_Time();        // Get the current time from the RTC module
 void Write_RTC_Hrs(int16 hours);     // Write hours into the RTC module
 void Write_RTC_Min(int16 minutes);   // Write minutes into the RTC module
 void Write_RTC_Sec(int16 seconds);   // Write seconds into the RTC module
+
 #endif

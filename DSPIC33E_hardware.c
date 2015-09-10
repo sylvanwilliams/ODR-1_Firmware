@@ -242,7 +242,7 @@ void Init_P33EP512MU810_osc()
 // Clock switching to incorporate PLL
    __builtin_write_OSCCONH(0x03);      // Clock Switch to Primary Osc with PLL (NOSC=0b011)
    //__builtin_write_OSCCONL(0x01);    // Start clock switching
-   __builtin_write_OSCCONL(0x03);      // Start clock switching and turn on LP 32kHz oscillator
+   __builtin_write_OSCCONL(OSCCON | 0x03); // Start clock switching and turn on LP 32kHz oscillator
    while (OSCCONbits.COSC!= 0b011);    // Wait for Clock switch to occur
    while (OSCCONbits.LOCK!= 1);        // Wait for PLL to lock
 
@@ -271,7 +271,7 @@ void Init_REFCLK()
 void Init_P33EP512MU810_pins()
 {
     // Set general I/O
-    TRISA = 0x0081;    // PortA 0000 0000 1000 0001 (In=RA0,RA7)
+    TRISA = 0x06C1;    // PortA 0000 0110 1100 0001 (In=RA0,RA6,RA7,RA9,RA10)
     PORTA = 0x0000;
 
     TRISB = 0x0000;    // PortB 0000 0000 0000 0000
@@ -283,7 +283,7 @@ void Init_P33EP512MU810_pins()
     TRISD = 0x1010;    // PortD 0001 0000 0001 0000 (In RD4,RD12)
     PORTD = 0x0000;
 
-    TRISE = 0x0008;    // PortE 0000 0000 0000 1000 (In RE3, )
+    TRISE = 0x0108;    // PortE 0000 0001 0000 1000 (In RE3,RE8 )
     PORTE = 0x0000;
 
     TRISF = 0x0001;    // PortF 0000 0000 0000 0001 (In RF0)
@@ -293,12 +293,13 @@ void Init_P33EP512MU810_pins()
     TRISG = 0x6280;    // PortG 0110 0010 1000 0000 (In=RG7,RG9,RG13,RG14)
     PORTG = 0x0000;
 
-    ANSELA = 0x0000;   //Configure analog inputs
-    ANSELB = 0x0000;
-    ANSELC = 0x0000;
-    ANSELD = 0x0000;
-    ANSELE = 0x0000;
-    ANSELG = 0x0000;
+    //Configure analog inputs
+    ANSELA = 0x0040;   // PortA 0000 0000 0100 0000 (Analog=RA6/AN22 )
+    ANSELB = 0x0000;   // PortB 0000 0000 0000 0000
+    ANSELC = 0x0000;   // PortC 0000 0000 0000 0000
+    ANSELD = 0x0000;   // PortD 0000 0000 0000 0000
+    ANSELE = 0x0100;   // PortE 0000 0001 0000 0000 (Analog=RE8/AN20 )
+    ANSELG = 0x0000;   // PortF 0000 0000 0000 0000
 
     CNPUA = 0x0000;    // Port A Pull Up 0000 0000 1100 0000
     CNPDA = 0x0000;    // Port A Pull Down
@@ -550,4 +551,57 @@ void Init_DCI(void)
     
     DCICON1bits.DCIEN = 1; /* Enable the module*/
     IEC3bits.DCIIE = 1;
+}
+
+/******************************************************************************
+ * Function:       Init_ADC1 in 12bit mode
+ *
+ * PreCondition:   Analog inputs identified in Init_P33EP512MU810_pins function
+ *                 Set RA9 and RA10 as inputs to use the external reference
+ *
+ * Input:          None
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview: Initializes ADC # 1 hardware and the external voltage reference
+ *           For 12-bit operation, auto channel scan and auto conversion.
+ *****************************************************************************/
+void Init_ADC1(void)
+{
+    AD1CON1bits.ADSIDL = 0;   // Continues module operation in Idle mode
+    AD1CON1bits.ADDMABM = 0;  // Default DMA Scatter/Gather mode;
+    AD1CON1bits.AD12B = 1;    // 12-bit, 1-channel ADC operation
+    AD1CON1bits.FORM = 0;     // Integer output (DOUT = 0000 dddd dddd dddd)
+    AD1CON1bits.SSRC = 7;     // Internal counter (auto-convert)
+    AD1CON1bits.SSRCG = 0;    // Sample Clock Source Group 0
+    AD1CON1bits.SIMSAM = 0;   // Sample channels individually in sequence
+    AD1CON1bits.ASAM = 1;     // Sampling begins automatically
+
+    AD1CON2bits.VCFG = 3;     // Voltage Reference VREF+ VREF-
+    AD1CON2bits.CSCNA = 1;    // Scans inputs for CH0+ during Sample A bit
+    AD1CON2bits.CHPS = 1;     // Converts CH0 and CH1
+    AD1CON2bits.SMPI = 1;     // Generate interrupt after 2nd conversion
+    AD1CON2bits.BUFM = 0;     // Fill buffer from the Start address
+    AD1CON2bits.ALTS = 0;     // Use channel input selects for Sample A
+
+    AD1CON3bits.ADRC = 0;     // ADC Clock is derived from System Clock
+    AD1CON3bits.SAMC = 2;     // Sample for 2 * Tad before converting
+    AD1CON3bits.ADCS = 14;    // ADC Conversion Clock Select bits
+    // TAD = TCY * (ADCS + 1) = (1 / 60MHz) * 15 = 250 ns (4 MHz)
+    // ADC conversion time for 12-bit Tconv = 14 * Tad = 3.5us
+    
+    AD1CON4 = 0x0000;         // DMA Buffers Not used, results in ADC1BUF 0-F
+
+    // ADC1 Input Scan Select Registers
+    AD1CSSH = 0x0050;    // Scan AN16-31 0000 0000 0101 0000 (AN20, AN22)
+    AD1CSSL = 0x0000;    // Scan AN0-15  0000 0000 0000 0000
+
+    //Assign MUXA inputs
+    AD1CHS0bits.CH0SA = 0; // Ignored, CH0 positive inputs scanned not fixed
+    AD1CHS0bits.CH0NA = 0; // CH0 negative input is VREFL
+    
+    AD1CON1bits.ADON = 1;  //Enable ADC module
+
 }

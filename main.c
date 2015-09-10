@@ -20,6 +20,7 @@
 #include "ODR1_Control_1.h"
 #include "TLV320AIC3204.h"
 #include "DSP.h"
+#include "ODR1_Meters.h"
 
 void Service_Interface(void);
 // void Init_Mixer_Board();
@@ -42,6 +43,7 @@ int main(void)
     Init_RTCC();      // Initialize the real time clock
     Init_I2C2();      // Initialize I2C2
     Init_REFCLK();    // Initialize Reference Clock output used as codec MCLK
+    Init_ADC1();      // Initialize A-D Converter #1
 
     // Initialize other board hardware
     Lcd_Init();		     // tft initialization

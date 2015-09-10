@@ -147,9 +147,11 @@ void Page0_pointer1_update()
                 Display_TX_Offset();      // Display new TX offset
             break;
         }
- 
     }
-    
+    else // If encoder does not need attention, do this
+    {
+        Display_Battery_Volts();  // Display Battery Voltage
+    }
     oldButtonState = Encoder1ButtonEvent();
     Encoder1CountZero();
 }
@@ -282,10 +284,12 @@ void Page0_pointer2_update()
             break;
         }
     }
-
+    else  // Encoder does not need attention, do this
+    {
+        Display_UTC_24HR(); // Update time display
+    }
     oldButtonState = Encoder2ButtonEvent();
     Encoder2CountZero();
-    Display_UTC_24HR(); // Update time display
 }
 
 
@@ -333,7 +337,7 @@ void Refresh_page0()
     BACK_COLOR = field_color;
     LCD_16x24_String(10,114,"S9+20");      // Dummy Signal parameter
     LCD_16x24_String(112,114,"1.0:1");    // Dummy SWR parameter
-    LCD_16x24_String(222,114,"13.8");     // Dummy Battery parameter
+    // LCD_16x24_String(222,114,"13.8");     // Dummy Battery parameter
 
     POINT_COLOR = border_color;
     LCD_DrawRectangle(2, 143, 105, 188);    // Set up Border
@@ -375,7 +379,7 @@ void Refresh_page0()
     Display_FilterBW();     // Display BW Filter
     Display_RFGain();       // Display RF Gain
     Display_AFGain();       // Display AFGain
- 
+    Display_Battery_Volts(); // Display Battery Voltage
 }
 
 /*******************************************************************************
@@ -497,6 +501,46 @@ void Display_TX_Offset()
     BACK_COLOR = field_color;                  // Restore the background color
 }
 
+/*******************************************************************************
+* Displays the Battery Voltage
+*
+*
+*
+*******************************************************************************/
+void Display_Battery_Volts()
+{
+
+//    LCD_16wz_Num(222,114,Battery_Volts(),4);
+
+    uint8 t;          // Character position
+    uint16 x = 222;    // Screen X position to display voltage
+    uint16 y = 114;    // Screen Y position to display voltage
+    uint8 enshow = 0;   // Leading zero suppression flag
+
+    NumToCharArray(Battery_Volts()); // Convert Battery Volts to character array
+
+    // Display array characters on screen suppressing leading zeros and inserting separators
+    for(t=(10-4);t<10;t++)   // Display least significant 4 of the 10 total charactors
+    {
+
+        if((enshow==0) && (num32_char[t]=='0'))     // test for leading zeros
+        {
+            LCD_16x24_Char(x,y,' ',0);              // display space instead of zero
+            x = x+16;                               // increment character position
+        }
+        else
+        {
+            enshow = 1;                             // leading zero flag off
+            LCD_16x24_Char(x,y,num32_char[t],0);    // display number character
+            x = x+16;                               // Increment character position
+            if (t==7)                               // decimal position
+            {
+               LCD_16x24_Char(x,y,'.',0);           // display decimal character
+               x = x+16;                            // increment character position
+            }
+        }
+    }
+}
 
 /*******************************************************************************
 * Displays the current Mic Gain

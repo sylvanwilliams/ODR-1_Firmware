@@ -19,6 +19,8 @@
 #define	int64 signed long long int      // AKA int64_t
 #define	uint64 unsigned long long int   // AKA uint64_t
 
+void Osc_Temperature(void);
+uint16 Battery_Volts(void);
 
 #endif
 
