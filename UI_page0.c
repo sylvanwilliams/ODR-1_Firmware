@@ -24,7 +24,6 @@
 
 //Variables
 
-
 int16 rxtx_mode         = 0;          // Default to CW
 int32 radio_freq        = 10000000;   // Default to 10 meters
 int32 radio_freq_min    = 500000;     // Minimum Radio Frequency MHz
@@ -40,6 +39,8 @@ int16 af_gain           = 15;
 int16 rtc_hrs           = 23;  // Real time clock hours 0-23
 int16 rtc_min           = 59;  // Real time clock minutes 0-59
 int16 rtc_sec           = 00;  // Real time clock seconds 0-59
+
+uint16 time_slice       = 0;   // A counter to schedule tasks
 
 /*******************************************************************************
 * Navigation pointer #1 is associated with the upper encoder and is used to
@@ -150,7 +151,20 @@ void Page0_pointer1_update()
     }
     else // If encoder does not need attention, do this
     {
-        Display_Battery_Volts();  // Display Battery Voltage
+         time_slice ++;        // Increment the time slice counter
+         if (time_slice > 20)  // Higher values slow update rate
+         {
+             time_slice = 0;   // Roll over the time slice counter
+         }
+         switch(time_slice)    // Schedule one item to run
+        {
+            case 0:
+                Display_Battery_Volts();  // Display Battery Voltage
+            break;
+            case 1:
+                Display_OSCTemp(); //Temporarily show oscillator temperature
+            break;
+         }
     }
     oldButtonState = Encoder1ButtonEvent();
     Encoder1CountZero();
@@ -509,37 +523,15 @@ void Display_TX_Offset()
 *******************************************************************************/
 void Display_Battery_Volts()
 {
+    int16 temp;
 
-//    LCD_16wz_Num(222,114,Battery_Volts(),4);
-
-    uint8 t;          // Character position
-    uint16 x = 222;    // Screen X position to display voltage
-    uint16 y = 114;    // Screen Y position to display voltage
-    uint8 enshow = 0;   // Leading zero suppression flag
-
-    NumToCharArray(Battery_Volts()); // Convert Battery Volts to character array
-
-    // Display array characters on screen suppressing leading zeros and inserting separators
-    for(t=(10-4);t<10;t++)   // Display least significant 4 of the 10 total charactors
-    {
-
-        if((enshow==0) && (num32_char[t]=='0'))     // test for leading zeros
-        {
-            LCD_16x24_Char(x,y,' ',0);              // display space instead of zero
-            x = x+16;                               // increment character position
-        }
-        else
-        {
-            enshow = 1;                             // leading zero flag off
-            LCD_16x24_Char(x,y,num32_char[t],0);    // display number character
-            x = x+16;                               // Increment character position
-            if (t==7)                               // decimal position
-            {
-               LCD_16x24_Char(x,y,'.',0);           // display decimal character
-               x = x+16;                            // increment character position
-            }
-        }
-    }
+    POINT_COLOR = char_norm_color;
+    BACK_COLOR = field_color;
+    temp = Battery_Volts();             // Get the latest battery voltage
+    LCD_16x24_Char(258,114,'.',0);      // Display period symbol, mode=0
+    LCD_16wz_Num(274,114,temp,2);       // Display two decimal digits
+    temp = (temp/100);                  // Divide number by 100
+    LCD_16nz_Num(226,114,temp,2);       // Display two 10s digits
 }
 
 /*******************************************************************************
@@ -884,4 +876,38 @@ void Change_Freq()
     si5351aSetFrequency(2 * radio_freq);    // Set oscillator frequency
     Set_bandpass_Filters(radio_freq);       // Select bandpass filter on mixer bd
     Display_Frequency();                    // Update Frequency Display
+}
+
+/*******************************************************************************
+* Displays the oscillator temperature
+* Not used on this screen so this is a place holder for another screen
+*
+*
+*******************************************************************************/
+void Display_OSCTemp()
+{
+    int16 temp;
+    POINT_COLOR = char_norm_color;
+    BACK_COLOR = field_color;
+    temp = Osc_Temperature();              // Get the latest temperature
+    if (temp < 0)                          // If the af gain is negetive
+    {
+        temp = ((temp ^ 0xFFFF)+ 0x0001);  // Twos Complement to negate sign
+        LCD_16x24_Char(256,16,'.',0);      // Display period symbol, mode=0
+        LCD_16nz_Num(272,16,temp,1);       // Display decimal number
+        LCD_16x24_Char(288,16,'C',0);      // Display C
+        temp = (temp/10);                  // Divide number by 10
+        LCD_16x24_Char(208,16,'-',0);      // Display negative symbol, mode=0
+        LCD_16nz_Num(224,16,temp,2);       // Display two numbers
+    }
+    else
+    {
+        LCD_16x24_Char(256,16,'.',0);      // Display period symbol, mode=0
+        LCD_16nz_Num(272,16,temp,1);       // Display decimal number
+        LCD_16x24_Char(288,16,'C',0);      // Display C
+        temp = (temp/10);                  // Divide number by 10
+        LCD_16x24_Char(208,16,'+',0);      // Display positive symbol, mode=0
+        LCD_16nz_Num(224,16,temp,2);       // Display two numbers
+    }
+
 }

@@ -70,7 +70,9 @@ int main(void)
             Encoder1_Update();   // Get the latest encoder status
             Encoder2_Update();   // Get the latest encoder status
             timer1_flag = 0;     // Reset the flag
+
         }
+
     }
 
 }

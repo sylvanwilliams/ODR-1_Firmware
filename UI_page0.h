@@ -48,5 +48,5 @@ void Read_RTC_Time();        // Get the current time from the RTC module
 void Write_RTC_Hrs(int16 hours);     // Write hours into the RTC module
 void Write_RTC_Min(int16 minutes);   // Write minutes into the RTC module
 void Write_RTC_Sec(int16 seconds);   // Write seconds into the RTC module
-
+void Display_OSCTemp();     // Temporary temperature display
 #endif
