@@ -19,6 +19,11 @@
 uint16 batt_volts_array[10] = {2400,2400,2400,2400,2400,2400,2400,2400,2400,2400};
 uint16 batt_volts_ptr = 0;
 
+uint16 batt_volts_avg = 1200;
+uint16 batt_volts_cnt = 0;
+
+int16 osc_temp_avg = 270; // Average temperature value
+uint16 osc_temp_cnt = 0;  // Temperature anti-flicker filter counter
 
 /******************************************************************************
  * Function:       Osc_Temperature using the STLM20 temperature sensor
@@ -27,7 +32,7 @@ uint16 batt_volts_ptr = 0;
  *
  * Input:          None
  *
- * Output:         None
+ * Output:         Temperature in 10s of a degree C int16
  *
  * Side Effects:   None
  *
@@ -41,16 +46,27 @@ uint16 batt_volts_ptr = 0;
  *****************************************************************************/
 int16 Osc_Temperature(void)
 {
-    int32 temp;
+    int32 temp1;
     int16 temp2;
-    temp = ADC1BUF0;     // Read the AN20 temperature sensore value
-    temp = (temp * 523); 
-    temp2 = (int16)((1592400 - temp)/1000); // Signed temperature value * 10
-    return temp2;
-    // Debug screen printing
-    // POINT_COLOR = char_norm_color;
-    // BACK_COLOR = field_color;
-    // LCD_16wz_Num(160,10,temp2,5);
+    
+    temp1 = ADC1BUF0;     // Read the AN20 temperature sensor value
+    temp1 = (temp1 * 523);
+    temp2 = (int16)((1592400 - temp1)/1000); // Signed temperature value * 10
+
+    // Temperature flicker filter
+    if (temp2 != osc_temp_avg)    // Test if new temp != avg temp
+    {
+       osc_temp_cnt ++;           // Increment the no match counter
+    }
+    else  osc_temp_cnt = 0;       // New sample and average temp is the same
+    if (osc_temp_cnt > 10)        // If temp is different xx times
+    {
+        osc_temp_avg = temp2;     // Set the new average temperature
+        osc_temp_cnt = 0;
+    }
+
+    return osc_temp_avg;
+
 }
 
 /******************************************************************************
@@ -73,6 +89,7 @@ uint16 Battery_Volts(void)
 {
     uint8 t=0;
     uint16 volts = 0;
+
     batt_volts_ptr ++;            // Increment array pointer
     if (batt_volts_ptr > 9)
     {
@@ -84,6 +101,7 @@ uint16 Battery_Volts(void)
         volts = (volts + batt_volts_array[t]);   // Add up last 10 samples
     }
     volts = volts / 10;                      // Get the average
+
     return (volts >>1);                      // Return battery voltage/2
 
 //    return ADC1BUF1 >>1;    // Return raw battery value  /2

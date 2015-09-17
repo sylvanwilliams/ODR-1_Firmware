@@ -19,10 +19,17 @@
 #define	int64 signed long long int      // AKA int64_t
 #define	uint64 unsigned long long int   // AKA uint64_t
 
+#define radio_freq_min     500000   // Minimum Radio Frequency Hz
+#define radio_freq_max   60000000   // Maximum Radio Frequency Hz
+
+extern int32 radio_freq;    // Radio frequency
+
+
 void Init_Mixer_Board();    // initialize the mixer board and oscillator
 void Set_bandpass_Filters(int32 freq);  // Set BP Filters on Osc & Mix Board
 void Set_RFGain(int16 gain);            // Set RF gain on Osc & Mix Board
 void Radio_Receive();                // Set radio to Receive
 void Radio_Transmit();               // Set radio to Transmit
+int16 Freq_Error_Comp();     // Calculate total freq error in Hz
+void Change_Freq();          // Change osc and filters based on freq change
 #endif
-

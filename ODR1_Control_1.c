@@ -10,10 +10,13 @@
 #include "p33EP512MU810.h"
 #include "DSPIC33E_hardware.h"
 #include "ODR1_Control_1.h"
+#include "ODR1_Meters.h"
 #include "si5351a.h"
 #include "TLV320AIC3204.h"
 #include "UI_page0.h"
 #include "LCD_driver.h"
+
+int32 radio_freq = 10000000;    // Radio frequency Default to 10MHz
 
 /******************************************************************************
  * Function:       Init_Mixer_Board
@@ -49,9 +52,8 @@ void Init_Mixer_Board()
     BPF_CS0 = 1;
     BPF_CS1 = 0;
 
-    // Default osillator frequency to 6M (2 * 10MHz)
-    //si5351aSetFrequency(20000000); // set si5351 freq to 20MHz
-    Init_si5351a() ;      // Initialize si5351 clock chip
+    // radio_freq = 10000000; // Set the Default radio frequency to 10MHz
+    Init_si5351a() ;       // Initialize si5351 clock chip
 }
 
 /******************************************************************************
@@ -256,4 +258,89 @@ void Radio_Transmit()
     Codec_HP_Gain(af_gain);    // Restore headphones gain
     TX_RX   = 1;    // RX/TX Control line, 0=Receive
     PTT_OUT = 1;    // Rear PTT Output
+}
+
+/******************************************************************************
+ * Function:       Freq_Error_Comp
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         Frequency Error in Hertz
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Calculates the number of Hertz to add to the oscillator
+ *                 commannd to compensate for initial error and thermal drift.
+ *                 The method uses a 3rd order polynomial based on temperature
+ *                 drift measurements plotted in Excel using trend line formula.
+ *                 polynomial constants are scaled up for all integer math.
+ *****************************************************************************/
+int16 Freq_Error_Comp()
+{
+    int16 init_freq_error = 21800; // Initial frequency error in ppb
+    int16 poly_const_A = -93;      // polynomial constant A
+    int16 poly_const_B = 790;      // polynomial constant B
+    int16 poly_const_C = 7505;     // polynomial constant C
+    int16 poly_const_D = 5319;     // polynomial constant D
+    int32 poly_A;                  // polynomial variable A
+    int32 poly_B;                  // polynomial variable B
+    int32 poly_C;                  // polynomial variable C
+
+    poly_C = (int32)Osc_Temperature();   // Get the latest temperature
+    poly_B = (poly_C * poly_C);          // Square the temperature
+    poly_A = (poly_B * poly_C);          // Cube the temperature
+    poly_A = (poly_A / 100);             // Reduce number of bits for next step
+    poly_A = (poly_A * poly_const_A);    // Multiply temperature^3 by constant A
+    poly_B = (poly_B * poly_const_B);    // Multiply temperature^2 by constant B
+    poly_B = (poly_B + poly_A);          // Add polynomial parts A and B
+    poly_C = (poly_C * poly_const_C);    // Multiply temperature by constant C
+    poly_C = (poly_C * 10);              // Scale up to match parts B and C
+    poly_C = (poly_C + poly_B);          // Add polynomial parts A and B and C
+    poly_C = (poly_C / 10000);           // Rescale result
+    poly_C = (poly_C - poly_const_D);    // Error due to temperature now in ppb
+    poly_C = (poly_C + init_freq_error); // Add initial error in ppb for total
+    poly_A = (radio_freq / 10000);       // Radio frequency scale down
+    poly_C = (poly_C * poly_A);          // Multiply total ppb * frequency
+    poly_C = (poly_C /100000);           // Scale total error to Hz
+
+    if       (poly_C > 32767) poly_C = 32767;   // Cap the maximum error
+    else if  (poly_C < -32767) poly_C = -32767; // Cap the minimum error
+    return (int16)poly_C;            // Return the number of Hertz total error
+}
+
+/******************************************************************************
+ * Function:       Change_Freq
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         Other Functional calls
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Change the Oscillator Frequency and set the bandpass
+ *                 filters based on frequency then update the display frequency
+ *****************************************************************************/
+
+void Change_Freq()
+{
+    int32 freq_cmd;   // Frequency command to be set to oscillator
+    // Don't let radio go out of frequency bounds
+    if (radio_freq > radio_freq_max)
+    {
+        radio_freq = radio_freq_max;
+    }
+    else if (radio_freq < radio_freq_min)
+    {
+        radio_freq = radio_freq_min;
+    }
+    freq_cmd = (int32)Freq_Error_Comp();     // Get frequency error compensation
+    freq_cmd = (freq_cmd + radio_freq);      // Compensate frequency
+    freq_cmd = (freq_cmd * 2);               // Double the oscillator frequency
+    si5351aSetFrequency((uint32)freq_cmd);   // Set oscillator frequency
+
+    Set_bandpass_Filters(radio_freq);        // Select bandpass filter on mixer bd
 }

@@ -13,6 +13,7 @@
 #include "LCD_driver.h"
 #include "UI_main.h"
 #include "UI_page0.h"
+#include "ODR1_Control_1.h"
 
 //Arrays
 // Array of pointers to adjustable parameter strings

@@ -23,7 +23,6 @@
 //#define LCD_H 320   // Portrate
 
 extern int16 rxtx_mode;     // Mode
-extern int32 radio_freq;    // Radio frequency
 extern int16 tx_offset;     // Transmit Offset
 extern int16 mic_gain;      // Microphone gain
 extern int16 rf_gain;       // Receive RF gain
@@ -43,7 +42,6 @@ void Display_FilterBW();     // Display BW Filter
 void Display_RFGain();       // Display RF Gain
 void Display_AFGain();       // Display AFGain
 void Display_UTC_24HR();     // Display Time in 24hour format
-void Change_Freq();          // Change osc and filters based on freq change
 void Read_RTC_Time();        // Get the current time from the RTC module
 void Write_RTC_Hrs(int16 hours);     // Write hours into the RTC module
 void Write_RTC_Min(int16 minutes);   // Write minutes into the RTC module

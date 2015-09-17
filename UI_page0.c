@@ -25,9 +25,6 @@
 //Variables
 
 int16 rxtx_mode         = 0;          // Default to CW
-int32 radio_freq        = 10000000;   // Default to 10 meters
-int32 radio_freq_min    = 500000;     // Minimum Radio Frequency MHz
-int32 radio_freq_max    = 60000000;   // Maximum Radio Frequency MHz
 int16 tx_offset         = 0;          // Transmit Offset
 
 int16 mic_gain          = 10;
@@ -53,6 +50,7 @@ uint16 time_slice       = 0;   // A counter to schedule tasks
 *******************************************************************************/
 void Page0_pointer1_update()
 {
+    int16 temp1; // temporary variable used for testing
     int16 encoderCount = Encoder1Count();
     static eButtonState oldButtonState = NO_PRESS;
 
@@ -105,35 +103,43 @@ void Page0_pointer1_update()
             break;
             case 0x0001:  // Pointer position 1 freq digit 8
                 radio_freq += (10000000 * encoderCount);
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0002:  // Pointer position 2 freq digit 7
                 radio_freq += (1000000 * encoderCount);
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0003:  // Pointer position 3 freq digit 6
                 radio_freq += (100000 * encoderCount);
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0004:  // Pointer position 4 freq digit 5
                 radio_freq += (10000 * encoderCount);
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0005:  // Pointer position 5 freq digit 4
                 radio_freq += (1000 * encoderCount);
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0006:  // Pointer position 6 freq digit 3
                 radio_freq += (100 * encoderCount);
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0007:  // Pointer position 7 freq digit 2
                 radio_freq += (10 * encoderCount);
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0008:  // Pointer position 8 freq digit 1
                 radio_freq += encoderCount;
-                Change_Freq();  // Update Frequency
+                Change_Freq();          // Update Osc Freq and filters
+                Display_Frequency();    // Update Frequency Display
             break;
             case 0x0009:  // Pointer position 9 TX offset
                 tx_offset += encoderCount;
@@ -163,6 +169,13 @@ void Page0_pointer1_update()
             break;
             case 1:
                 Display_OSCTemp(); //Temporarily show oscillator temperature
+            break;
+            case 2: //Temperature Compensate Oscillator Frequency
+                Change_Freq();   // Temperature compensate Oscillator
+            break;
+            case 3: //Temporarily show frequency compensation
+                temp1 = Freq_Error_Comp();  // Debug get frequency error
+                LCD_16nz_Num(10,16,temp1,5); // Debug display error in Hz
             break;
          }
     }
@@ -548,7 +561,7 @@ void Display_MicGain()
     }
     POINT_COLOR = char_norm_color;
     LCD_16nz_Num(130,162,mic_gain,2);      // Display two numbers
-    LCD_16x24_String(162,162,"db");      // Display Mic Gain db
+    LCD_16x24_String(162,162,"dB");      // Display Mic Gain db
     BACK_COLOR = field_color;            // Restore the background color
 }
 
@@ -641,13 +654,13 @@ void Display_AFGain()
         temp = ((af_gain ^ 0xFFFF)+ 0x0001);  // Twos Complement to negate sign
         LCD_16x24_Char(226,210,'-',0);        // Display negetive symbol, mode=0
         LCD_16nz_Num(242,210,temp,2);         // Display two numbers
-        LCD_16x24_String(274,210,"db");       // Display AF Gain db
+        LCD_16x24_String(274,210,"dB");       // Display AF Gain db
     }
     else
     {
         LCD_16x24_String(226,210,"+");        // Display AF Gain +
         LCD_16nz_Num(242,210,af_gain,2);      // Display two numbers
-        LCD_16x24_String(274,210,"db");       // Display AF Gain db
+        LCD_16x24_String(274,210,"dB");       // Display AF Gain db
     }
     BACK_COLOR = field_color;             // Restore the background color
 }
@@ -852,30 +865,6 @@ void Write_RTC_Sec(int16 seconds)
     RTCVAL = temp | seconds;      // Write new minutes to RTCC module
     RCFGCALbits.RTCWREN = 0;      // Disable writes to the RTC control register
     Read_RTC_Time();              // Refresh the time values
-}
-
-/*******************************************************************************
-* Change the Oscillator Frequency and set the bandpass filters based on frequency
-* Then update the display frequency
-*
-*
-*******************************************************************************/
-void Change_Freq()
-{
-    // Don't let radio go out of frequency bounds
-    if (radio_freq > radio_freq_max)
-    {
-        radio_freq = radio_freq_max;
-    }
-    else if (radio_freq < radio_freq_min)
-    {
-        radio_freq = radio_freq_min;
-    }
-
-    // set si5351 freq to 2X desired freq
-    si5351aSetFrequency(2 * radio_freq);    // Set oscillator frequency
-    Set_bandpass_Filters(radio_freq);       // Select bandpass filter on mixer bd
-    Display_Frequency();                    // Update Frequency Display
 }
 
 /*******************************************************************************

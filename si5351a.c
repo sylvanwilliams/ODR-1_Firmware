@@ -18,7 +18,7 @@
 //#include "i2c.h"
 #include "si5351a.h"
 #include "DSPIC33E_hardware.h"
-
+#include "ODR1_Control_1.h"
 
 //
 // Set up specified PLL with mult, num and denom
@@ -148,7 +148,7 @@ void si5351aSetFrequency(uint32_t frequency)
 
 void Init_si5351a(void)
 {
-    si5351aSetFrequency(20000000); // Set receive frequency to 10 MHz
+    si5351aSetFrequency(radio_freq * 2); // Set receive frequency
     // set crystal load capacitance to 8pf
     I2C2_Byte_Write(SI_XTAL_LD_CAP, 0b10010010);
     // Turn OFF spread spectrum
