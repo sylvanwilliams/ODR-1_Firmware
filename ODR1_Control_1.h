@@ -30,6 +30,6 @@ void Set_bandpass_Filters(int32 freq);  // Set BP Filters on Osc & Mix Board
 void Set_RFGain(int16 gain);            // Set RF gain on Osc & Mix Board
 void Radio_Receive();                // Set radio to Receive
 void Radio_Transmit();               // Set radio to Transmit
-int16 Freq_Error_Comp();     // Calculate total freq error in Hz
+int16 Freq_Error_Comp();     // Calculate total freq error in Hz LUT method
 void Change_Freq();          // Change osc and filters based on freq change
 #endif

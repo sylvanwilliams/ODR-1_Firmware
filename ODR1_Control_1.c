@@ -18,6 +18,84 @@
 
 int32 radio_freq = 10000000;    // Radio frequency Default to 10MHz
 
+// Arrays
+
+// local oscillator drift in ppb, temporarily stored as constant later
+// to be moved to EEPROM but we still need a default set of values.
+
+const int16 LOdrift[19] =
+{             // Serial # 1 LO Drift Values in ppb
+    -2917,    // -20C
+    -4354,    // -15C
+    -5187,    // -10C
+    -5485,    // -5C
+    -5319,    //  0C
+    -4758,    //  5C
+    -3871,    //  10C
+    -2729,    //  15C
+    -1400,    //  20C
+        0,    //  25C
+     1538,    //  30C
+     3008,    //  35C
+     4386,    //  40C
+     5602,    //  45C
+     6587,    //  50C
+     7271,    //  55C
+     7584,    //  60C
+     7458,    //  65C
+     6821,    //  70C
+};
+
+/*
+const int16 LOdrift[19] =
+{             // Serial # 2 and average LO Drift Values in ppb
+    -3559,    // -20C
+    -4877,    // -15C
+    -5694,    // -10C
+    -6003,    // -5C
+    -5883,    //  0C
+    -5269,    //  5C
+    -4276,    //  10C
+    -3030,    //  15C
+    -1557,    //  20C
+        0,    //  25C
+     1679,    //  30C
+     3214,    //  35C
+     4543,    //  40C
+     5570,    //  45C
+     6379,    //  50C
+     6856,    //  55C
+     7027,    //  60C
+     6879,    //  65C
+     6286,    //  70C
+};
+*/
+
+/*
+const int16 LOdrift[19] =
+{             // Serial # 3 LO Drift Values in ppb
+    -4200,    // -20C
+    -5400,    // -15C
+    -6200,    // -10C
+    -6521,    // -5C
+    -6447,    //  0C
+    -5780,    //  5C
+    -4680,    //  10C
+    -3330,    //  15C
+    -1713,    //  20C
+        0,    //  25C
+     1820,    //  30C
+     3420,    //  35C
+     4700,    //  40C
+     5537,    //  45C
+     6170,    //  50C
+     6440,    //  55C
+     6470,    //  60C
+     6300,    //  65C
+     5750,    //  70C
+};
+*/
+
 /******************************************************************************
  * Function:       Init_Mixer_Board
  *
@@ -273,41 +351,46 @@ void Radio_Transmit()
  *
  * Overview:       Calculates the number of Hertz to add to the oscillator
  *                 commannd to compensate for initial error and thermal drift.
- *                 The method uses a 3rd order polynomial based on temperature
- *                 drift measurements plotted in Excel using trend line formula.
- *                 polynomial constants are scaled up for all integer math.
+ *                 The method uses a look-up table indexed by temperature. The
+ *                 table holds the thermal error in ppb. lineal interpolation
+ *                 is used for temperatures compensation between entries.
  *****************************************************************************/
 int16 Freq_Error_Comp()
 {
-    int16 init_freq_error = 21800; // Initial frequency error in ppb
-    int16 poly_const_A = -93;      // polynomial constant A
-    int16 poly_const_B = 790;      // polynomial constant B
-    int16 poly_const_C = 7505;     // polynomial constant C
-    int16 poly_const_D = 5319;     // polynomial constant D
-    int32 poly_A;                  // polynomial variable A
-    int32 poly_B;                  // polynomial variable B
-    int32 poly_C;                  // polynomial variable C
+    int16 tempA;
+    int16 tempB;
+    int32 driftA;
+    int32 driftB;
+    int16 init_freq_error = 21800; // SER# 1 Initial freq error in ppb
+//    int16 init_freq_error = 15000; // SER# 2 Initial freq error in ppb
+//    int16 init_freq_error = 22000; // SER# 3 Initial freq error in ppb
+    tempA = Osc_Temperature();    // Get the latest oscilator temperature
+    if (tempA < -200)             // Check for temperature out of bounds low
+    {
+        tempA = -200;
+    }
+    else if (tempA > 699)         // Check for temperature out of bounds high
+    {
+        tempA = 699;              // Cap at 699 so array index is !> 17
+    }
+    tempB = tempA + 200;          // Shift temperature positive by 20.0 degrees
+    tempB = tempB / 50;           // Create index into LOdrift array
+    driftA = LOdrift[tempB];      // Grab first drift value from array
+    driftB = LOdrift[tempB +1];   // Grab next drift value from array
+    driftB = driftB - driftA;     // Find the difference in the drift values
+    driftB = driftB * 2;          // Weight per 1/10 degree = diff * 100/50, simplify to * 2
+    tempB = tempB * 50;           // Index * 50
+    tempB = tempB - 200;          // Get back to the rounded DriftA temperature
+    tempA = tempA - tempB;        // Find the difference in temperature
+    driftB = driftB * tempA;      // Interpolation difference * 100
+    driftB = driftB / 100;        // Convert difference to ppb
+    driftB = driftB + driftA;     // Interpolated error in ppb
 
-    poly_C = (int32)Osc_Temperature();   // Get the latest temperature
-    poly_B = (poly_C * poly_C);          // Square the temperature
-    poly_A = (poly_B * poly_C);          // Cube the temperature
-    poly_A = (poly_A / 100);             // Reduce number of bits for next step
-    poly_A = (poly_A * poly_const_A);    // Multiply temperature^3 by constant A
-    poly_B = (poly_B * poly_const_B);    // Multiply temperature^2 by constant B
-    poly_B = (poly_B + poly_A);          // Add polynomial parts A and B
-    poly_C = (poly_C * poly_const_C);    // Multiply temperature by constant C
-    poly_C = (poly_C * 10);              // Scale up to match parts B and C
-    poly_C = (poly_C + poly_B);          // Add polynomial parts A and B and C
-    poly_C = (poly_C / 10000);           // Rescale result
-    poly_C = (poly_C - poly_const_D);    // Error due to temperature now in ppb
-    poly_C = (poly_C + init_freq_error); // Add initial error in ppb for total
-    poly_A = (radio_freq / 10000);       // Radio frequency scale down
-    poly_C = (poly_C * poly_A);          // Multiply total ppb * frequency
-    poly_C = (poly_C /100000);           // Scale total error to Hz
-
-    if       (poly_C > 32767) poly_C = 32767;   // Cap the maximum error
-    else if  (poly_C < -32767) poly_C = -32767; // Cap the minimum error
-    return (int16)poly_C;            // Return the number of Hertz total error
+    driftB = (driftB + init_freq_error); // Add initial error in ppb for total
+    driftA = (radio_freq / 10000);       // Radio frequency scale down
+    driftB = (driftB * driftA);          // Multiply total ppb * frequency
+    driftB = (driftB / 100000);          // Scale total error to Hz
+    return   (int16)driftB;              // Return error correction in Hertz
 }
 
 /******************************************************************************
