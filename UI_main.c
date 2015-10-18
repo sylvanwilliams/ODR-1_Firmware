@@ -43,11 +43,12 @@ sEncoderData encoder2Data;
 
 /*******************************************************************************
  * Encoder 1 Status updates the encoder rotation count and push button status.
- * The rotary encoder changes 4 states per detent so the last two bits are masked
- * so that items increment once per detent.
+ * The 16 detent rotary encoder changes 4 states per detent
+ * The 12 detent rotary encoder changes 8 states per detent
+ * The last 2 or 3 bits are masked (ignored) before testing for a position change.
+ * The final count is /4 or /8 so that items increment once per detent.
  * The encoder and PB counts need to be cleared after use by other functions.
- * The push button count tells how long the button was pressed before released
- * and traps the count on button release. The MSb indicates pressed and released.
+ * The push button count tells how long the button has been pressed.
  * IMPORTANT! The encoderDatax.count member is cumulative per ISR. You MUST
  * clear it after servicing the UI is finished
  *******************************************************************************/
@@ -57,10 +58,12 @@ void Encoder1_Update()
     
     encoder1Data.oldButtonState = encoder1Data.buttonState;
     
-    encoder1_new = (POS1CNTL & 0xFFFC); // Read encoder1 position zero last two bits
+    // encoder1_new = (POS1CNTL & 0xFFFC); // 16-detent read encoder1 position mask last two bits
+    encoder1_new = (POS1CNTL & 0xFFF8); // 12-detent read encoder1 position mask last three bits
     if (encoder1_new != encoder1Data.oldCount) // if position has changed
     {
-        encoder1Data.count += ((encoder1_new - encoder1Data.oldCount) >> 2); // Update new count
+        // encoder1Data.count += ((encoder1_new - encoder1Data.oldCount) >> 2); // 16-detent update new count
+        encoder1Data.count += ((encoder1_new - encoder1Data.oldCount) >> 3); // 12-detent update new count
         encoder1Data.oldCount = encoder1_new; // Store last read
     }
 
@@ -74,7 +77,7 @@ void Encoder1_Update()
         encoder1Data.buttonState = NONE;
     }
 
-    if (encoder1Data.buttonCount) 
+    if (encoder1Data.buttonCount) // If button is being pressed
     {
         if (encoder1Data.buttonCount > BUTTON_TICKS) // If button was held for defined duration
         {
@@ -94,7 +97,7 @@ void Encoder1_Update()
             }
             encoder1Data.buttonCount = 0;
         }
-        else
+        else // Button has a short duration press
         {
             encoder1Data.buttonState = QUICK;
         }
@@ -118,11 +121,14 @@ eButtonState Encoder1ButtonEvent(void)
 }
 /*******************************************************************************
  * Encoder 2 Status updates the encoder rotation count and push button status.
- * The rotary encoder changes 4 states per detent so the last two bits are masked
- * so that items increment once per detent.
+ * The 16 detent rotary encoder changes 4 states per detent
+ * The 12 detent rotary encoder changes 8 states per detent
+ * The last 2 or 3 bits are masked (ignored) before testing for a position change.
+ * The final count is /4 or /8 so that items increment once per detent.
  * The encoder and PB counts need to be cleared after use by other functions.
- * The push button count tells how long the button was pressed before released
- * and traps the count on button release. The MSb indicates pressed and released.
+ * The push button count tells how long the button has been pressed.
+ * IMPORTANT! The encoderDatax.count member is cumulative per ISR. You MUST
+ * clear it after servicing the UI is finished
  *******************************************************************************/
 void Encoder2_Update()
 {
@@ -130,10 +136,12 @@ void Encoder2_Update()
 
     encoder2Data.oldButtonState = encoder2Data.buttonState;
 
-    encoder2_new = (POS2CNTL & 0xFFFC); // Read encoder1 position zero last two bits
+    //encoder2_new = (POS2CNTL & 0xFFFC); // 16-detent read encoder1 position mask last two bits
+    encoder2_new = (POS2CNTL & 0xFFF8); // 12-detent read encoder1 position mask last three bits
     if (encoder2_new != encoder2Data.oldCount) // if position has changed
     {
-        encoder2Data.count += ((encoder2_new - encoder2Data.oldCount) >> 2); // Update new count
+        //encoder2Data.count += ((encoder2_new - encoder2Data.oldCount) >> 2); // 16-detent update new count
+        encoder2Data.count += ((encoder2_new - encoder2Data.oldCount) >> 3); // 12-detent update new count
         encoder2Data.oldCount = encoder2_new; // Store last read
     }
 

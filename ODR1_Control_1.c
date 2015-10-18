@@ -361,9 +361,9 @@ int16 Freq_Error_Comp()
     int16 tempB;
     int32 driftA;
     int32 driftB;
-    int16 init_freq_error = 21800; // SER# 1 Initial freq error in ppb
+    int16 init_freq_error = 21866; // SER# 1 Initial freq error in ppb
 //    int16 init_freq_error = 15000; // SER# 2 Initial freq error in ppb
-//    int16 init_freq_error = 22000; // SER# 3 Initial freq error in ppb
+//    int16 init_freq_error = 21850; // SER# 3 Initial freq error in ppb
     tempA = Osc_Temperature();    // Get the latest oscilator temperature
     if (tempA < -200)             // Check for temperature out of bounds low
     {
