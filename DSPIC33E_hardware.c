@@ -283,14 +283,13 @@ void Init_P33EP512MU810_pins()
     TRISD = 0x1010;    // PortD 0001 0000 0001 0000 (In RD4,RD12)
     PORTD = 0x0000;
 
-    TRISE = 0x0108;    // PortE 0000 0001 0000 1000 (In RE3,RE8 )
+    TRISE = 0x010A;    // PortE 0000 0001 0000 1010 (In RE1,RE3,RE8 )
     PORTE = 0x0000;
 
     TRISF = 0x0001;    // PortF 0000 0000 0000 0001 (In RF0)
     PORTF = 0x0000;
 
-    // Configure LCD Data / Command/data Pin
-    TRISG = 0x6280;    // PortG 0110 0010 1000 0000 (In=RG7,RG9,RG13,RG14)
+    TRISG = 0x7280;    // PortG 0111 0010 1000 0000 (In=RG7,RG9,RG12,RG13,RG14)
     PORTG = 0x0000;
 
     //Configure analog inputs
@@ -311,7 +310,6 @@ void Init_P33EP512MU810_pins()
     CNPDD = 0x0000;    // Port D Pull Down
     CNPUE = 0x0000;    // Port E Pull Up 0000 0000 0000 0010
     CNPDE = 0x0000;    // Port E Pull Down
-    // CNPUF = 0x0018;    // Port F Pull Up 0000 0000 0001 1000 Pull up I2C2 SCL SDA for testing
     CNPUF = 0x0000;    // Port F Pull Up 0000 0000 0000 0000
     CNPDF = 0x0000;    // Port F Pull Down
     CNPUG = 0x0000;    // Port G Pull Up 0000 0000 0000 0000
@@ -347,20 +345,12 @@ void Init_P33EP512MU810_pins()
     RPINR0bits.INT1R  = 0b1010011;    // EXT INT1 to RE3 RPI83 Table 11-1, 11-2
 
     // Quadrature Encoder Interface #1 pin connections
-    //RPINR14bits.QEA1R  = 0b1000100;  // Connect QEI1 QEA1 input to RP68 RD4 (Table 11-2)
-    //RPINR14bits.QEB1R  = 0b1000101;  // Connect QEI1 QEB1 input to RP69 RD5 (Table 11-2)
-    //RPINR15bits.HOME1R = 0b1001100;  // Connect QEI1 HOME1 input to RPI76 RD12 (Table 11-2)
-    //RPINR15bits.INDX1R = 0b1001101;  // Connect QEI1 INDEX1 input to RPI77 RD13 (Table 11-2
     RPINR14bits.QEA1R  = 0b0110010;  // Connect QEI1 QEA1 input to RPI50 RC2 (Table 11-2)
     RPINR14bits.QEB1R  = 0b0110100;  // Connect QEI1 QEB1 input to RPI52 RC4 (Table 11-2)
     RPINR15bits.HOME1R = 0b0000000;  // Connect QEI1 HOME1 input to Vss (Table 11-2)
     RPINR15bits.INDX1R = 0b0110011;  // Connect QEI1 INDEX1 input to RPI51 RC3 (Table 11-2
 
     // Quadrature Encoder Interface #2 pin connections
-    //RPINR16bits.QEA2R  = 0b0010111;  // Connect QEI2 QEA2 input to RPI23 RA7 (Table 11-2)
-    //RPINR16bits.QEB2R  = 0b0010110;  // Connect QEI2 QEB2 input to RPI22 RA6 (Table 11-2)
-    //RPINR17bits.HOME2R = 0b1111100;  // Connect QEI2 HOME2 input to RPI124 RG12 (Table 11-2)
-    //RPINR17bits.INDX2R = 0b1010001;  // Connect QEI2 INDEX2 input to RPI81 RE1 (Table 11-2)
     RPINR16bits.QEA2R  = 0b0010000;  // Connect QEI2 QEA2 input to RPI16 RA0 (Table 11-2)
     RPINR16bits.QEB2R  = 0b0110001;  // Connect QEI2 QEB2 input to RPI49 RC1 (Table 11-2)
     RPINR17bits.HOME2R = 0b0000000;  // Connect QEI2 HOME2 input to Vss (Table 11-2)

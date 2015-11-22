@@ -18,6 +18,7 @@
 #include "UI_page1.h"
 #include "UI_page2.h"
 #include "DSPIC33E_hardware.h"
+#include "ODR1_Control_1.h"
 
 #define MENU_PRESS_DURATION 2
 #define BUTTON_TICKS        ((unsigned int)(MENU_PRESS_DURATION/TIMER1_CYCLE_TIME))
@@ -234,3 +235,28 @@ void Color_pallet_update()
     }
 }
 
+/******************************************************************************
+ * Function:       void Scan_Key_Inputs(void)
+ *
+ * PreCondition:   None
+ *
+ * Input:          None
+ *
+ * Output:         None
+ *
+ * Side Effects:   None
+ *
+ * Overview:       Read the active low keyer inputs and react according to mode
+ *****************************************************************************/
+void Scan_Key_Inputs(void)
+{
+    if (!KEY_DOT)
+    {
+        Radio_Transmit();
+    }
+    else if (!KEY_DSH)
+    {
+        Radio_Transmit();
+    }
+    else Radio_Receive();
+}

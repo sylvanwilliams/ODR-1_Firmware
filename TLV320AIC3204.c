@@ -105,7 +105,7 @@ void Init_Audio_Codec(void)
     Codec_Write_SPI (3,  0b00001000); // Left DAC is Class AB and PTM_P1
     Codec_Write_SPI (4,  0b00001000); // Right DAC is Class AB and PTM_P1
     Codec_Write_SPI (10, 0b00000000); // Common Mode Control CM 0.9V LDOIN 1.8-3.6V
-    Codec_Write_SPI (9,  0b00110011); // Output Driver Power Control HPL HPR MAL MAR on
+    Codec_Write_SPI (9,  0b00111111); // Output Driver Power Control HPL HPR LOL LOR MAL MAR on
     delayms(1000);    // Delay for supply rail powerup
 
     Codec_Write_SPI (52, 0b00010000); // Left MICPGA Pos Input Routing IN2L+ RX_I+
@@ -129,6 +129,9 @@ void Init_Audio_Codec(void)
 
     Codec_Write_SPI (16, 0b00001111); // HPL Driver Gain Setting +15dB
     Codec_Write_SPI (17, 0b00001111); // HPR Driver Gain Setting +15dB
+
+    Codec_Write_SPI (18, 0b00000000); // LOL Driver Gain Setting 0dB
+    Codec_Write_SPI (19, 0b00000000); // LOR Driver Gain Setting 0dB
 
     Codec_Write_SPI (22, 0b01110101); // IN1L to HPL Volume 0dB to -72dB
     Codec_Write_SPI (23, 0b01110101); // IN1R to HPR Volume 0dB to -72dB
@@ -333,7 +336,7 @@ void Codec_Config_PT1_RX (void)
 * Codec_Config_PT1_TX
 *
 * Configure Codec for All Analog Pass Through Transmit
-* using Stereo Mic Input for I & Q.
+* using Stereo Mic Input for I & Q unbalanced audio input.
 * This configuration is for external computer IQ mod/demod
 * 
 *
@@ -341,7 +344,7 @@ void Codec_Config_PT1_RX (void)
 void Codec_Config_PT1_TX (void)
 {
     Codec_Write_SPI (0, 1);           // Select page 1
-    Codec_Write_SPI (58, 0b11110000); // Floating Inputs connect to common mode
+    Codec_Write_SPI (58, 0b11110000); // Connect IN1 and IN2 to common mode
     Codec_Write_SPI (52, 0b00000100); // Left MICPGA Pos Input Routing IN3L+ 10k
     Codec_Write_SPI (54, 0b01000000); // Left MICPGA Neg Input Routing CM1L 10k
     Codec_Write_SPI (55, 0b00000100); // Right MICPGA Pos Input Routing IN3R+ 10k
@@ -349,10 +352,15 @@ void Codec_Config_PT1_TX (void)
 	
     Codec_Write_SPI (14, 0b00000010); // LOL Routing Selection MAL
     Codec_Write_SPI (15, 0b00000010); // LOR Routing Selection MAR
-	
-    Codec_Write_SPI (24, 0b00000000); // Mixer Amp Left Volume 0dB
-    Codec_Write_SPI (25, 0b00000000); // Mixer Amp Right Volume 0dB
-	
+
+    Codec_Write_SPI (59, 0b00000000); // Left MICPGA Volume 0dB to 47.5dB gain
+    Codec_Write_SPI (60, 0b00000000); // Right MICPGA Volume 0dB to 47.5dB gain
+
+    //Codec_Write_SPI (24, 0b00000000); // Mixer Amp Left Volume 0dB
+    //Codec_Write_SPI (25, 0b00000000); // Mixer Amp Right Volume 0dB
+
+    Codec_Write_SPI (18, 0b00000000); // LOL Driver Gain Setting 0dB
+    Codec_Write_SPI (19, 0b00000000); // LOR Driver Gain Setting 0dB
 }
 
 /*******************************************************************************

@@ -43,6 +43,7 @@
 #define PERIODIC   LATFbits.LATF2     // Test pin for watching execution times
 #define	LCD_CS     LATEbits.LATE7     // LCD Slave Select on RE7(RP87)
 #define	LCD_REST   LATEbits.LATE6     // LCD Reset on RE6(RPI86)
+#define	LCD_DC     LATGbits.LATG15    //LCD Data/Command on RG15(RP127)
 #define BPF_S0     LATDbits.LATD14    // Band Pass Filter Select 0
 #define BPF_S1     LATBbits.LATB15    // Band Pass Filter Select 1
 #define BPF_CS0    LATBbits.LATB14    // Band Pass Filter Chip Select 0
@@ -54,11 +55,10 @@
 #define AUX_OUT    LATAbits.LATA3     // Rear Auxiliary Output
 #define PTT_OUT    LATAbits.LATA2     // Rear PTT Output
 #define CODEC_RST  LATEbits.LATE4     // Audio Codec Reset Line RE4
-#define CODEC_CS  LATGbits.LATG1     // Audio Codec Chip Select RG1
+#define CODEC_CS   LATGbits.LATG1     // Audio Codec Chip Select RG1
 
-// Configure LCD Data / Command Pin
-
-#define	LCD_DC     LATGbits.LATG15    //LCD Data/Command on RG15(RP127)
+#define	KEY_DOT   PORTEbits.RE1       // Key Dot Input on RE1(RPI81)
+#define	KEY_DSH   PORTGbits.RG12      // Key Dash Input on RG12(RPI124)
 
 //#define	Debug_0    LATDbits.LATD0     //Debug_0 on RD0(RP64)
 //#define	Button_1  PORTGbits.RG15      //Push Button on RG15

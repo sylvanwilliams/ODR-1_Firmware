@@ -49,6 +49,7 @@ extern uint16 border_color;       // Outer Border Color
 void Encoder1_Update();           // update encoder 1 status
 void Encoder2_Update();           // update encoder 1 status
 void Color_pallet_update();       // update the color palate
+void Scan_Key_Inputs(void);       // Scan the keyer input lines
 
 int16 Encoder1Count(void);
 void Encoder1CountZero(void);
