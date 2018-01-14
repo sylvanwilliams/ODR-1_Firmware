@@ -8,3 +8,9 @@ VFO (Clock Generator) - Silicon Labs Si5351A
 
 The first build phase will consist of the Processor Board, Oscillator and mixer Board and the
 Display Board. This will constitute a 10mW transceiver. The final board will contain the main post amplifier and low pass filters generating ~5W of output power.
+
+Hardware - https://github.com/N7IFC/ODR-1_Hardware
+Firmware - https://github.com/sylvanwilliams/ODR-1_Firmware
+
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
